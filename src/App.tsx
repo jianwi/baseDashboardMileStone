@@ -48,6 +48,124 @@ function CheckIcon({color}) {
     </svg>
 }
 
+export function SelectRefDate({config, setConfig}) {
+
+    const [tables, setTables] = React.useState<any[]>([]);
+    const [fields, setFields] = React.useState<any[]>([]);
+    async function getTables() {
+        let tables = await bitable.base.getTableMetaList();
+        setTables(tables);
+        if (config.dateType === 'ref' && config.dateInfo.tableId) {
+            console.log("you have table id")
+            getDateFields(config.dateInfo.tableId);
+        }
+    }
+    React.useEffect(()=>{
+        getTables();
+    }, [])
+
+    async function getDateFields(table_id){
+        console.log("获取", table_id)
+        let table = await bitable.base.getTableById(table_id);
+        let fields = await table.getFieldMetaListByType(5);
+        setFields(fields)
+        setConfig({
+            ...config,
+            dateInfo: {
+                ...config.dateInfo,
+                tableId: table_id,
+                fieldId: fields[0].id
+            }
+        })
+    }
+
+    return (<div>
+        <div className={'form-item'}>
+            <div className={'label'} style={{marginTop:8}}>数据源</div>
+            <Select
+                onChange={v=>{
+                    setConfig({
+                        ...config,
+                        dateInfo: {
+                            tableId: v,
+                            fieldId: '',
+                            dateType: 'earliest'
+                        }
+                    })
+                    getDateFields(v);
+                }}
+                value={config.dateInfo.tableId}
+                style={{
+                    width: "100%"
+                }}
+                placeholder={'请选择数据源'}
+                optionList={tables.map(item=>{
+                return {
+                    label: item.name,
+                    value: item.id,
+                }
+            })}/>
+        </div>
+        <div className={'form-item'}>
+            <div className={'label'}>
+                日期字段
+            </div>
+            <Select
+                style={{
+                    width: "100%"
+                }}
+                value={config.dateInfo.fieldId}
+                placeholder={'请选择日期字段'}
+                optionList={fields.map(item=>{
+                return {
+                    label: item.name,
+                    value: item.id,
+                }})}
+            >
+
+            </Select>
+        </div>
+        <div className={'form-item'}>
+            <div className={"tab-wrap"}>
+                <div
+                    onClick={()=>{
+                        setConfig({
+                            ...config,
+                            dateInfo: {
+                                ...config.dateInfo,
+                                dateType: 'earliest'
+                            }
+                        })
+                    }}
+                    className={classnames({
+                    "tab-item": true,
+                    "active": (!config.dateInfo || config.dateInfo.dateType === 'earliest')
+                })}>
+                    最早日期
+                </div>
+                <div
+                    onClick={()=>{
+                        setConfig({
+                            ...config,
+                            dateInfo: {
+                                ...config.dateInfo,
+                                dateType: 'latest'
+                            }
+                        })
+                    }}
+                    className={classnames({
+                    "tab-item": true,
+                    "active": (config.dateInfo && config.dateInfo.dateType === 'latest')
+                })}>
+                    最晚日期
+                </div>
+            </div>
+        </div>
+
+    </div>)
+    
+}
+
 export default function App() {
     const [locale, setLocale] = useState(zhCN);
     const [config, setConfig] = useState<IMileStoneConfig>({
@@ -64,12 +182,20 @@ export default function App() {
     const isConfig = dashboard.state === DashboardState.Config || isCreate;
 
     const changeDateType = (type: 'date' | 'ref') => {
+        let dateInfo = {}
         if (type === 'date') {
-
+        }
+        if (type === 'ref') {
+            dateInfo = {
+                tableId: '',
+                fieldId: '',
+                dateType: 'earliest'
+            }
         }
         setConfig({
             ...config,
             dateType: type,
+            dateInfo
         })
     }
     const changeLang = (lang: 'en-us' | 'zh-cn') => {
@@ -115,6 +241,7 @@ export default function App() {
 
     const onClick = () => {
         // 保存配置
+        console.log("保存配置", config)
         dashboard.saveConfig({
             customConfig: config,
             dataConditions: [],
@@ -195,6 +322,12 @@ export default function App() {
                                                         }}
                                                     />
                                                 </div>
+                                            )
+                                        }
+
+                                        {
+                                            config.dateType === 'ref' && (
+                                                <SelectRefDate config={config} setConfig={setConfig}/>
                                             )
                                         }
                                     </div>
@@ -306,6 +439,11 @@ function MileStone({config, isConfig}:{
             {/*})}>*/}
             {/*    距离: {convertTimestamp(target * 1000)} 还有*/}
             {/*</p> : null}*/}
+            <pre>
+                {
+                    JSON.stringify(config,null,4)
+                }
+            </pre>
 
             <div className='number-container' style={{ color }}>
                 {title}
