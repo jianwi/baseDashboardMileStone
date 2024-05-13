@@ -74,7 +74,7 @@ export function SelectRefDate({config, setConfig}) {
             dateInfo: {
                 ...config.dateInfo,
                 tableId: table_id,
-                fieldId: fields[0].id
+                fieldId: config.dateInfo.fieldId
             }
         })
     }
@@ -113,6 +113,15 @@ export function SelectRefDate({config, setConfig}) {
             <Select
                 style={{
                     width: "100%"
+                }}
+                onChange={v=>{
+                    setConfig({
+                        ...config,
+                        dateInfo: {
+                            ...config.dateInfo,
+                            fieldId: v
+                        }
+                    })
                 }}
                 value={config.dateInfo.fieldId}
                 placeholder={'请选择日期字段'}
@@ -169,7 +178,7 @@ export function SelectRefDate({config, setConfig}) {
 export default function App() {
     const [locale, setLocale] = useState(zhCN);
     const [config, setConfig] = useState<IMileStoneConfig>({
-        title: "",
+        title: "Project Launch Time",
         color: '#373C43',
         dateType: 'date',
         dateInfo: {},
@@ -427,31 +436,86 @@ function MileStone({config, isConfig}:{
     config: IMileStoneConfig,
     isConfig: boolean
 }) {
+
     const {title, format, color,target} = config
-    const time = dayjs(target).format(format)
+    const [time, setTime] = useState(dayjs(target).format(format))
+    useEffect(()=>{
+        async function getTime(){
+            let table = await bitable.base.getTableById(config.dateInfo.tableId)
+            let type = config.dateInfo.dateType
+            console.log("table", table)
+            let tsArr = []
+            let res = await table.getRecords({
+                pageSize: 5000
+            })
+            if (!(res && res.records && res.records.length > 0)){
+                return
+            }
+            let records = res.records
+            console.log(records)
+            let targetField = config.dateInfo.fieldId
+            if (records && records.length > 0){
+                for (let record of records){
+                    console.log(record.fields)
+                    console.log(targetField)
+                    console.log(record.fields[targetField])
+                    let ts =record.fields[targetField]
+                    if (ts){
+                        tsArr.push(ts)
+                    }
+                }
+            }
+            if (tsArr.length > 0){
+                if (config.dateInfo.dateType === "latest"){
+                    setTime(dayjs(Math.max(...tsArr)).format(format))
+                }else {
+                    setTime(dayjs(Math.min(...tsArr)).format(format))
+                }
+            }
+
+        }
+
+        if (config.dateType === "ref"){
+            getTime()
+        }
+
+    },[config])
 
 
     return (
-        <div style={{ width: '100vw', textAlign: 'center', overflow: 'hidden' }}>
-
-            {/*{config.othersConfig.includes('showTitle') ? <p className={classnames('count-down-title', {*/}
-            {/*    'count-down-title-config': isConfig*/}
-            {/*})}>*/}
-            {/*    距离: {convertTimestamp(target * 1000)} 还有*/}
-            {/*</p> : null}*/}
-            <pre>
-                {
-                    JSON.stringify(config,null,4)
-                }
-            </pre>
-
-            <div className='number-container' style={{ color }}>
-                {title}
+        <div style={{width: '100vw', textAlign: 'center', overflow: 'hidden'}}>
+            <div style={{
+                display:"flex",
+                justifyContent:"center"
+            }}>
                 <div>
-                    {time}
+                    <svg width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="0.5" width="90" height="90" rx="20" fill={config.color} fill-opacity="0.1"/>
+                        <path
+                            d="M63.8286 37.125C59.9929 37.7571 53.7357 37.9286 49.5786 30.0429C45.1214 21.5679 37.9214 21.3107 33.7107 22.0821C31.6643 22.4571 30.1321 24.1714 30.1321 25.8321V46.8964C31.3429 47.3571 32.6393 46.875 32.9714 46.8107C33.0571 46.7893 33.1321 46.7786 33.2286 46.7571C35.9071 46.1679 38.7357 45.8893 45.7429 49.2536C54.5286 53.4643 62.2214 45.7071 65.2 40.3071C65.4143 39.9321 66.1321 38.1429 66.1321 36.4286C65.0929 36.8571 63.8286 37.125 63.8286 37.125ZM27.5714 21H25.8571C25.3857 21 25 21.3857 25 21.8571V68.1429C25 68.6143 25.3857 69 25.8571 69H27.5714C28.0429 69 28.4286 68.6143 28.4286 68.1429V21.8571C28.4286 21.3857 28.0429 21 27.5714 21Z"
+                            fill={config.color}/>
+                    </svg>
+                </div>
+                <div>
+                    <div style={{
+                        fontSize: 32,
+                        color: "#333",
+                        fontWeight: 700,
+                        padding: "15px 10px "
+                    }}>
+                        {time}
+                    </div>
+                    <div style={{
+                        fontSize: 18,
+                        color: "#666",
+                        paddingLeft: "10px",
+                        textAlign:"left",
+                        fontWeight: 500,
+                    }}>
+                        {title}
+                    </div>
                 </div>
             </div>
-
         </div>
     );
 
@@ -476,8 +540,7 @@ function Countdown({config, initialTime, isConfig}: {
         };
     }, []);
 
-    const timeCount = getTime({ target: target, units: units.map((v) => availableUnits[v]) })
-
+    const timeCount = getTime({target: target, units: units.map((v) => availableUnits[v])})
 
 
     if (time <= 0) {
@@ -491,9 +554,9 @@ function Countdown({config, initialTime, isConfig}: {
     }
 
     return (
-        <div style={{ width: '100vw', textAlign: 'center', overflow: 'hidden' }}>
+        <div style={{width: '100vw', textAlign: 'center', overflow: 'hidden'}}>
 
-            {config.othersConfig.includes('showTitle') ? <p className={classnames('count-down-title', {
+        {config.othersConfig.includes('showTitle') ? <p className={classnames('count-down-title', {
                 'count-down-title-config': isConfig
             })}>
                 距离: {convertTimestamp(target * 1000)} 还有
