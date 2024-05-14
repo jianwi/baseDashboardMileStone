@@ -1,16 +1,18 @@
 import './App.css';
-import React from 'react';
-import { dashboard, bitable, DashboardState } from "@lark-base-open/js-sdk";
-import {    Row, Col, GetProp, ColorPicker } from 'antd';
-import {ConfigProvider, Button, DatePicker, Checkbox, Input, Select, Icon} from '@douyinfe/semi-ui';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { getTime } from './utils';
+import React, {useEffect, useState} from 'react';
+import {bitable, dashboard, DashboardState, IDataCondition, Rollup} from "@lark-base-open/js-sdk";
+import {Button, ConfigProvider, DatePicker, Input, Select, Spin} from '@douyinfe/semi-ui';
+import {getTime} from './utils';
 import dayjs from 'dayjs';
 
 import zhCN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN';
 import enUS from '@douyinfe/semi-ui/lib/es/locale/source/en_US';
 
 import classnames from 'classnames'
+import classNames from 'classnames'
+import 'dayjs/locale/zh-cn';
+import 'dayjs/locale/en';
+import {set} from "@douyinfe/semi-foundation/lib/es/utils/object";
 
 interface IMileStoneConfig{
     title: string;
@@ -25,11 +27,6 @@ const formatOptions = ['YYYY/MM/DD','YYYY-MM-DD','MM-DD','MM/DD/YY','DD/MM/YY']
 
 const colors = ["#1F2329","#1456F0","#7A35F0","#35BD4B","#2DBEAB","#FFC60A","#FF811A","#F54A45"]
 
-
-import 'dayjs/locale/zh-cn';
-import 'dayjs/locale/en';
-import classNames from "classnames";
-import {CheckSquareOutlined} from "@ant-design/icons";
 
 dayjs.locale('zh-cn');
 
@@ -251,9 +248,19 @@ export default function App() {
     const onClick = () => {
         // 保存配置
         console.log("保存配置", config)
+        let dataConditions:IDataCondition[]|null = []
+        if (config.dateType === 'ref'){
+            dataConditions = [{
+                tableId: config.dateInfo.tableId,
+                series: [{
+                    fieldId: config.dateInfo.fieldId,
+                    rollup: config.dateInfo.dateType === 'earliest' ? Rollup.MIN : Rollup.MAX
+                }]
+            }]
+        }
         dashboard.saveConfig({
             customConfig: config,
-            dataConditions: [],
+            dataConditions: dataConditions,
         } as any)
     }
 
@@ -438,51 +445,44 @@ function MileStone({config, isConfig}:{
 }) {
 
     const {title, format, color,target} = config
-    const [time, setTime] = useState(dayjs(target).format(format))
+    const [time, setTime] = useState("")
     useEffect(()=>{
         async function getTime(){
-            let table = await bitable.base.getTableById(config.dateInfo.tableId)
-            let type = config.dateInfo.dateType
-            console.log("table", table)
-            let tsArr = []
-            let res = await table.getRecords({
-                pageSize: 5000
-            })
-            if (!(res && res.records && res.records.length > 0)){
-                return
+            if(isConfig){
+                console.log('正在配置中',config)
+                let tableId = config.dateInfo.tableId
+                let fieldId = config.dateInfo.fieldId
+                let dateType = config.dateInfo.dateType
+                let type = dateType === 'earliest' ? Rollup.MIN : Rollup.MAX
+                let data = await dashboard.getPreviewData({
+                    tableId: tableId,
+                    series: [{
+                        fieldId: fieldId,
+                        rollup: type
+                    }]
+                })
+                let time = data[1][0].text
+                setTime(dayjs(time).format(format))
+            }else {
+                console.log('正式环境,获取数据', config)
+                let info = await dashboard.getData()
+                console.log("正式环境的 info", info)
+                let time = info[1][0].text
+                setTime(dayjs(time).format(format))
             }
-            let records = res.records
-            console.log(records)
-            let targetField = config.dateInfo.fieldId
-            if (records && records.length > 0){
-                for (let record of records){
-                    console.log(record.fields)
-                    console.log(targetField)
-                    console.log(record.fields[targetField])
-                    let ts =record.fields[targetField]
-                    if (ts){
-                        tsArr.push(ts)
-                    }
-                }
-            }
-            if (tsArr.length > 0){
-                if (config.dateInfo.dateType === "latest"){
-                    setTime(dayjs(Math.max(...tsArr)).format(format))
-                }else {
-                    setTime(dayjs(Math.min(...tsArr)).format(format))
-                }
-            }
-
         }
 
         if (config.dateType === "ref"){
             getTime()
+        }else {
+            setTime(dayjs(config.target).format(config.format))
         }
 
-    },[config])
+    },[config, isConfig])
 
 
     return (
+        <Spin spinning={!time}>
         <div style={{width: '100vw', textAlign: 'center', overflow: 'hidden'}}>
             <div style={{
                 display:"flex",
@@ -517,6 +517,7 @@ function MileStone({config, isConfig}:{
                 </div>
             </div>
         </div>
+        </Spin>
     );
 
 }
