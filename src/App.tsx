@@ -2,7 +2,6 @@ import './App.css';
 import React, {useEffect, useState} from 'react';
 import {bitable, dashboard, DashboardState, IDataCondition, Rollup} from "@lark-base-open/js-sdk";
 import {Button, ConfigProvider, DatePicker, Input, Select, Spin} from '@douyinfe/semi-ui';
-import {getTime} from './utils';
 import dayjs from 'dayjs';
 
 import zhCN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN';
@@ -12,7 +11,6 @@ import classnames from 'classnames'
 import classNames from 'classnames'
 import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
-import {set} from "@douyinfe/semi-foundation/lib/es/utils/object";
 
 interface IMileStoneConfig{
     title: string;
@@ -70,8 +68,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
             ...config,
             dateInfo: {
                 ...config.dateInfo,
-                tableId: table_id,
-                fieldId: config.dateInfo.fieldId
+                tableId: table_id
             }
         })
     }
@@ -80,7 +77,8 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
         <div className={'form-item'}>
             <div className={'label'} style={{marginTop:8}}>数据源</div>
             <Select
-                onChange={v=>{
+                onChange={async (v)=>{
+                    await getDateFields(v as string);
                     setConfig({
                         ...config,
                         dateInfo: {
@@ -89,7 +87,6 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                             dateType: 'earliest'
                         }
                     })
-                    getDateFields(v as string);
                 }}
                 value={config.dateInfo.tableId}
                 style={{
@@ -98,10 +95,41 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                 placeholder={'请选择数据源'}
                 optionList={tables.map(item=>{
                 return {
-                    label: item.name,
+                    label: <div style={{
+                        display: "flex",
+                        alignItems: "center"
+                    }}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M1.33203 2.66634C1.33203 1.92996 1.92898 1.33301 2.66536 1.33301H13.332C14.0684 1.33301 14.6654 1.92996 14.6654 2.66634V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333V2.66634ZM2.66536 2.66634V13.333H13.332V2.66634H2.66536Z"
+                                fill="#646A73"/>
+                            <path
+                                d="M8.33203 4.66634C7.96384 4.66634 7.66536 4.96482 7.66536 5.33301C7.66536 5.7012 7.96384 5.99967 8.33203 5.99967H11.332C11.7002 5.99967 11.9987 5.7012 11.9987 5.33301C11.9987 4.96482 11.7002 4.66634 11.332 4.66634H8.33203Z"
+                                fill="#646A73"/>
+                            <path
+                                d="M3.9987 5.33301C3.9987 4.96482 4.29718 4.66634 4.66536 4.66634H5.9987C6.36689 4.66634 6.66536 4.96482 6.66536 5.33301C6.66536 5.7012 6.36689 5.99967 5.9987 5.99967H4.66536C4.29717 5.99967 3.9987 5.7012 3.9987 5.33301Z"
+                                fill="#646A73"/>
+                            <path
+                                d="M8.33203 7.33301C7.96384 7.33301 7.66536 7.63148 7.66536 7.99967C7.66536 8.36786 7.96384 8.66634 8.33203 8.66634H11.332C11.7002 8.66634 11.9987 8.36786 11.9987 7.99967C11.9987 7.63148 11.7002 7.33301 11.332 7.33301H8.33203Z"
+                                fill="#646A73"/>
+                            <path
+                                d="M3.9987 7.99967C3.9987 7.63148 4.29718 7.33301 4.66536 7.33301H5.9987C6.36689 7.33301 6.66536 7.63148 6.66536 7.99967C6.66536 8.36786 6.36689 8.66634 5.9987 8.66634H4.66536C4.29717 8.66634 3.9987 8.36786 3.9987 7.99967Z"
+                                fill="#646A73"/>
+                            <path
+                                d="M8.33203 9.99967C7.96384 9.99967 7.66536 10.2982 7.66536 10.6663C7.66536 11.0345 7.96384 11.333 8.33203 11.333H11.332C11.7002 11.333 11.9987 11.0345 11.9987 10.6663C11.9987 10.2982 11.7002 9.99967 11.332 9.99967H8.33203Z"
+                                fill="#646A73"/>
+                            <path
+                                d="M3.9987 10.6663C3.9987 10.2982 4.29718 9.99967 4.66536 9.99967H5.9987C6.36689 9.99967 6.66536 10.2982 6.66536 10.6663C6.66536 11.0345 6.36689 11.333 5.9987 11.333H4.66536C4.29717 11.333 3.9987 11.0345 3.9987 10.6663Z"
+                                fill="#646A73"/>
+                        </svg>
+                        <div style={{marginLeft:2}}>
+                            {item.name}
+                        </div>
+                    </div>,
                     value: item.id,
                 }
-            })}/>
+                })}/>
         </div>
         <div className={'form-item'}>
             <div className={'label'}>
@@ -111,7 +139,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                 style={{
                     width: "100%"
                 }}
-                onChange={v=>{
+                onChange={v => {
                     setConfig({
                         ...config,
                         dateInfo: {
@@ -122,11 +150,25 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                 }}
                 value={config.dateInfo.fieldId}
                 placeholder={'请选择日期字段'}
-                optionList={fields.map(item=>{
-                return {
-                    label: item.name,
+                optionList={fields.map(item => {
+                    return {
+                        label: (<div style={{
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M4.66536 1.33301C5.03355 1.33301 5.33203 1.63148 5.33203 1.99967H10.6654C10.6654 1.63148 10.9638 1.33301 11.332 1.33301C11.7002 1.33301 11.9987 1.63148 11.9987 1.99967C12.2748 1.99967 12.8119 1.99967 13.3321 1.99967C14.0684 1.99967 14.6654 2.59663 14.6654 3.33301V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333L1.33203 3.33301C1.33203 2.59663 1.92896 1.99967 2.66534 1.99967C3.18554 1.99967 3.72257 1.99967 3.9987 1.99967C3.9987 1.63148 4.29717 1.33301 4.66536 1.33301ZM10.6654 3.33301H5.33203C5.33203 3.7012 5.03355 3.99967 4.66536 3.99967C4.29717 3.99967 3.9987 3.7012 3.9987 3.33301H2.66536V13.333H13.332V3.33301H11.9987C11.9987 3.7012 11.7002 3.99967 11.332 3.99967C10.9638 3.99967 10.6654 3.7012 10.6654 3.33301ZM5.9987 9.99967C5.9987 9.63148 5.70022 9.33301 5.33203 9.33301H4.66536C4.29717 9.33301 3.9987 9.63149 3.9987 9.99967V10.6663C3.9987 11.0345 4.29717 11.333 4.66536 11.333H5.33203C5.70022 11.333 5.9987 11.0345 5.9987 10.6663V9.99967ZM6.9987 6.66634C6.9987 6.29815 7.29718 5.99967 7.66536 5.99967H8.33203C8.70022 5.99967 8.9987 6.29815 8.9987 6.66634V7.33301C8.9987 7.7012 8.70022 7.99967 8.33203 7.99967H7.66536C7.29717 7.99967 6.9987 7.7012 6.9987 7.33301V6.66634ZM8.9987 9.99967C8.9987 9.63148 8.70022 9.33301 8.33203 9.33301H7.66536C7.29717 9.33301 6.9987 9.63149 6.9987 9.99967V10.6663C6.9987 11.0345 7.29718 11.333 7.66536 11.333H8.33203C8.70022 11.333 8.9987 11.0345 8.9987 10.6663V9.99967ZM9.9987 9.99967C9.9987 9.63148 10.2972 9.33301 10.6654 9.33301H11.332C11.7002 9.33301 11.9987 9.63149 11.9987 9.99967V10.6663C11.9987 11.0345 11.7002 11.333 11.332 11.333H10.6654C10.2972 11.333 9.9987 11.0345 9.9987 10.6663V9.99967ZM11.9987 6.66634C11.9987 6.29815 11.7002 5.99967 11.332 5.99967H10.6654C10.2972 5.99967 9.9987 6.29815 9.9987 6.66634V7.33301C9.9987 7.7012 10.2972 7.99967 10.6654 7.99967H11.332C11.7002 7.99967 11.9987 7.7012 11.9987 7.33301V6.66634Z"
+                                fill="#646A73"/>
+                        </svg>
+                        <div style={{marginLeft:2}}>
+                            {item.name}
+                        </div>
+                    </div>),
                     value: item.id,
-                }})}
+                }
+                })}
             >
 
             </Select>
@@ -134,7 +176,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
         <div className={'form-item'}>
             <div className={"tab-wrap"}>
                 <div
-                    onClick={()=>{
+                    onClick={() => {
                         setConfig({
                             ...config,
                             dateInfo: {
@@ -144,13 +186,13 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                         })
                     }}
                     className={classnames({
-                    "tab-item": true,
-                    "active": (!config.dateInfo || config.dateInfo.dateType === 'earliest')
-                })}>
+                        "tab-item": true,
+                        "active": (!config.dateInfo || config.dateInfo.dateType === 'earliest')
+                    })}>
                     最早日期
                 </div>
                 <div
-                    onClick={()=>{
+                    onClick={() => {
                         setConfig({
                             ...config,
                             dateInfo: {
@@ -160,16 +202,16 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                         })
                     }}
                     className={classnames({
-                    "tab-item": true,
-                    "active": (config.dateInfo && config.dateInfo.dateType === 'latest')
-                })}>
+                        "tab-item": true,
+                        "active": (config.dateInfo && config.dateInfo.dateType === 'latest')
+                    })}>
                     最晚日期
                 </div>
             </div>
         </div>
 
     </div>)
-    
+
 }
 
 export default function App() {
@@ -506,7 +548,7 @@ function MileStone({config, isConfig}:{
                 }}>
                     <div style={{
                         fontSize: "7vmin",
-                        color: "#333",
+                        color: "#373c44",
                         fontWeight: 600,
                         padding: "0.4vmin"
                     }}>
@@ -514,7 +556,7 @@ function MileStone({config, isConfig}:{
                     </div>
                     <div style={{
                         fontSize: "2.5vmin",
-                        color: "#666",
+                        color: "#5f6369",
                         padding: "0.4vmin",
                         textAlign:"left",
                         fontWeight: 500,
