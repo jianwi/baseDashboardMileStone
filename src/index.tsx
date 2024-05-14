@@ -6,6 +6,7 @@ import {bitable} from "@lark-base-open/js-sdk";
 import {Spin} from "@douyinfe/semi-ui";
 
 
+// @ts-ignore
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <LoadApp />
@@ -16,6 +17,7 @@ function LoadApp() {
   const [load, setLoad] = useState(false);
   useEffect(() => {
     bitable.bridge.getLanguage().then((lang) => {
+      // @ts-ignore
       initI18n(lang);
       setLoad(true);
     }).catch((e) => {

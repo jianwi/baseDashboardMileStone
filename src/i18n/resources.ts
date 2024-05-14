@@ -29,8 +29,11 @@ let rr = {
     ja: {}
 }
 config.forEach(item => {
+    // @ts-ignore
     rr.zh[item[0]] = item[1]
+    // @ts-ignore
     rr.en[item[0]] = item[2]
+    // @ts-ignore
     rr.ja[item[0]] = item[3]
 })
 
