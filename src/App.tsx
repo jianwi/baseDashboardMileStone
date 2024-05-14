@@ -3,6 +3,8 @@ import React, {useEffect, useState} from 'react';
 import {bitable, dashboard, DashboardState, IDataCondition, Rollup} from "@lark-base-open/js-sdk";
 import {Button, ConfigProvider, DatePicker, Input, Select, Spin} from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
+import "./i18n/index"
+import {useTranslation} from "react-i18next";
 
 import zhCN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN';
 import enUS from '@douyinfe/semi-ui/lib/es/locale/source/en_US';
@@ -47,6 +49,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
 
     const [tables, setTables] = React.useState<any[]>([]);
     const [fields, setFields] = React.useState<any[]>([]);
+    const {t} = useTranslation()
     async function getTables() {
         let tables = await bitable.base.getTableMetaList();
         setTables(tables);
@@ -75,7 +78,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
 
     return (<div>
         <div className={'form-item'}>
-            <div className={'label'} style={{marginTop:8}}>数据源</div>
+            <div className={'label'} style={{marginTop:8}}>{t("数据源")}</div>
             <Select
                 onChange={async (v)=>{
                     await getDateFields(v as string);
@@ -92,7 +95,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                 style={{
                     width: "100%"
                 }}
-                placeholder={'请选择数据源'}
+                placeholder={t('请选择数据源')}
                 optionList={tables.map(item=>{
                 return {
                     label: <div style={{
@@ -133,7 +136,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
         </div>
         <div className={'form-item'}>
             <div className={'label'}>
-                日期字段
+                {t('日期字段')}
             </div>
             <Select
                 style={{
@@ -149,7 +152,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                     })
                 }}
                 value={config.dateInfo.fieldId}
-                placeholder={'请选择日期字段'}
+                placeholder={t('请选择日期字段')}
                 optionList={fields.map(item => {
                     return {
                         label: (<div style={{
@@ -189,7 +192,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                         "tab-item": true,
                         "active": (!config.dateInfo || config.dateInfo.dateType === 'earliest')
                     })}>
-                    最早日期
+                    {t('最早日期')}
                 </div>
                 <div
                     onClick={() => {
@@ -205,7 +208,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                         "tab-item": true,
                         "active": (config.dateInfo && config.dateInfo.dateType === 'latest')
                     })}>
-                    最晚日期
+                    {t('最晚日期')}
                 </div>
             </div>
         </div>
@@ -216,6 +219,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
 
 export default function App() {
     const [locale, setLocale] = useState(zhCN);
+    const {t} = useTranslation()
     const [config, setConfig] = useState<IMileStoneConfig>({
         title: "Project Launch Time",
         color: '#373C43',
@@ -328,7 +332,7 @@ export default function App() {
                         <div className='config-panel'>
                             <div className='form'>
                                 <div className='form-item'>
-                                    <div className='label'>日期标题</div>
+                                    <div className='label'>{t("日期标题")}</div>
                                     <Input
                                         value={config.title}
                                         onChange={(v) => {
@@ -339,13 +343,13 @@ export default function App() {
                                         }}/>
                                 </div>
                                 <div className='form-item'>
-                                    <div className={'label'}>日期</div>
+                                    <div className={'label'}>{t('日期')}</div>
                                     <div className={'common-wrap'}>
                                         <div style={{
                                             color: '#646A73',
                                             fontSize: 12,
                                         }}>
-                                            选择日期
+                                            {t('选择日期')}
                                         </div>
                                         <div className={'tab-wrap'}>
                                             <div
@@ -354,7 +358,7 @@ export default function App() {
                                                     'active': config.dateType === 'date',
                                                     'tab-item': true,
                                                 })}>
-                                                指定日期
+                                                {t('指定日期')}
                                             </div>
                                             <div
                                                 onClick={() => changeDateType('ref')}
@@ -362,7 +366,7 @@ export default function App() {
                                                     'active': config.dateType === 'ref',
                                                     'tab-item': true,
                                                 })}>
-                                                选择日期
+                                                {t('选择日期')}
                                             </div>
                                         </div>
                                         {
@@ -397,7 +401,7 @@ export default function App() {
                                             color: '#646A73',
                                             fontSize: 12,
                                         }}>
-                                            日期格式
+                                            {t('日期格式')}
                                         </div>
                                         <Select
                                             style={{
@@ -424,7 +428,7 @@ export default function App() {
                                         color: '#646A73',
                                         fontSize: 12,
                                     }}>
-                                        图标颜色
+                                        {t('图标颜色')}
                                     </div>
                                     <div style={{
                                         display: 'flex',
@@ -469,7 +473,7 @@ export default function App() {
                                 autoInsertSpace={false}
                                 onClick={onClick}
                             >
-                                确定
+                                {t('确定')}
                             </Button>
                         </div>
                     )
@@ -488,6 +492,8 @@ function MileStone({config, isConfig}:{
 
     const {title, format, color,target} = config
     const [time, setTime] = useState("")
+    const {t} = useTranslation()
+
     useEffect(()=>{
         async function getTime(){
             if(isConfig){
@@ -532,8 +538,8 @@ function MileStone({config, isConfig}:{
             }}>
                 <div>
                     <svg style={{
-                        width: "21vmin",
-                        height: "20vmin",
+                        width: "18vmin",
+                        height: "17vmin",
                     }} width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="0.5" width="90" height="90" rx="20" fill={config.color} fill-opacity="0.1"/>
                         <path

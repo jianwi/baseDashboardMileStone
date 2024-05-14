@@ -1,23 +1,30 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import {
-  createHashRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { initI18n } from './i18n'
+import {bitable} from "@lark-base-open/js-sdk";
+import {Spin} from "@douyinfe/semi-ui";
 
-const router = createHashRouter([
-  {
-    path: '/',
-    element: <App></App>
-  },
-])
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <RouterProvider router={router}></RouterProvider>
-  </React.StrictMode>
-);
+ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <LoadApp />
+    </React.StrictMode>
+)
+
+function LoadApp() {
+  const [load, setLoad] = useState(false);
+  useEffect(() => {
+    bitable.bridge.getLanguage().then((lang) => {
+      initI18n(lang);
+      setLoad(true);
+    }).catch((e) => {
+      console.log('getLanguage error', e);
+    });
+  }, [])
+
+  if (load) {
+    return <App />
+  }
+  return <Spin />
+}
