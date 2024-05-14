@@ -1,4 +1,8 @@
 @import "reset-css";
+body{
+    background: transparent !important;
+    background-image: none !important;
+}
 html {
     --text-title: rgba(31, 35, 41, 1);
 }
