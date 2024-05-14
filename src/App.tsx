@@ -30,7 +30,7 @@ const colors = ["#1F2329","#1456F0","#7A35F0","#35BD4B","#2DBEAB","#FFC60A","#FF
 
 dayjs.locale('zh-cn');
 
-function CheckIcon({color}) {
+function CheckIcon({color}: {color: string}) {
     return <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
         <path
@@ -45,7 +45,7 @@ function CheckIcon({color}) {
     </svg>
 }
 
-export function SelectRefDate({config, setConfig}) {
+export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, setConfig: any}) {
 
     const [tables, setTables] = React.useState<any[]>([]);
     const [fields, setFields] = React.useState<any[]>([]);
@@ -61,7 +61,7 @@ export function SelectRefDate({config, setConfig}) {
         getTables();
     }, [])
 
-    async function getDateFields(table_id){
+    async function getDateFields(table_id:string){
         console.log("获取", table_id)
         let table = await bitable.base.getTableById(table_id);
         let fields = await table.getFieldMetaListByType(5);
@@ -89,7 +89,7 @@ export function SelectRefDate({config, setConfig}) {
                             dateType: 'earliest'
                         }
                     })
-                    getDateFields(v);
+                    getDateFields(v as string);
                 }}
                 value={config.dateInfo.tableId}
                 style={{
@@ -333,7 +333,7 @@ export default function App() {
                                                         onChange={(date) => {
                                                             setConfig({
                                                                 ...config,
-                                                                target: new Date(date).getTime(),
+                                                                target: new Date(date as string).getTime(),
                                                             })
                                                         }}
                                                     />
@@ -364,9 +364,10 @@ export default function App() {
                                             }}
                                             value={config.format}
                                             onChange={(v)=>{
+                                                if (!v) return
                                                 setConfig({
                                                     ...config,
-                                                    format: v,
+                                                    format: v as string,
                                                 })
                                             }}
                                             optionList={formatOptions.map((v) => ({
@@ -422,7 +423,6 @@ export default function App() {
 
                             <Button
                                 className='btn'
-                                size="middle"
                                 type="primary"
                                 autoInsertSpace={false}
                                 onClick={onClick}
@@ -508,14 +508,14 @@ function MileStone({config, isConfig}:{
                         fontSize: "7vmin",
                         color: "#333",
                         fontWeight: 600,
-                        padding: "1vmin 4vmin"
+                        padding: "0.4vmin"
                     }}>
                         {time}
                     </div>
                     <div style={{
                         fontSize: "2.5vmin",
                         color: "#666",
-                        padding: "1vmin 4vmin",
+                        padding: "0.4vmin",
                         textAlign:"left",
                         fontWeight: 500,
                     }}>
@@ -527,63 +527,5 @@ function MileStone({config, isConfig}:{
         </Spin>
     );
 
-}
-
-function Countdown({config, initialTime, isConfig}: {
-    config: ICountDownConfig,
-    initialTime: number,
-    isConfig: boolean
-}) {
-    const {units, target, color} = config
-    const [time, setTime] = useState(target ?? 0);
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTime(time => {
-                return time - 1;
-            });
-        }, 1000);
-
-        return () => {
-            clearInterval(timer);
-        };
-    }, []);
-
-    const timeCount = getTime({target: target, units: units.map((v) => availableUnits[v])})
-
-
-    if (time <= 0) {
-        return (
-            <div style={{
-                fontSize: 26
-            }}>
-                请点击右上角配置时间
-            </div>
-        )
-    }
-
-    return (
-        <div style={{width: '100vw', textAlign: 'center', overflow: 'hidden'}}>
-
-        {config.othersConfig.includes('showTitle') ? <p className={classnames('count-down-title', {
-                'count-down-title-config': isConfig
-            })}>
-                距离: {convertTimestamp(target * 1000)} 还有
-            </p> : null}
-            <div className='number-container' style={{ color }}>
-                {timeCount.units.sort((a, b) => b.unit - a.unit).map(({ count, title }) => {
-                    return <div key={title}>
-                        <div className='number'>{count}</div>
-                        <div className='number-title'>{title} </div>
-                    </div>
-                })}
-            </div>
-
-        </div>
-    );
-}
-
-function convertTimestamp(timestamp: number) {
-    const date = new Date(timestamp);
-    return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')
 }
 
