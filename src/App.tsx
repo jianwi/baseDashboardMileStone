@@ -514,6 +514,28 @@ function MileStone({config, isConfig}:{
     }, [time])
 
     useEffect(()=>{
+        bitable.bridge.getTheme().then((theme)=>{
+            console.log("theme", theme)
+            const body = document.querySelector('body');
+            if (theme === 'DARK'){
+                body.setAttribute('theme-mode', 'dark');
+            }else {
+                body.removeAttribute('theme-mode');
+            }
+        })
+
+        bitable.bridge.onThemeChange((r)=>{
+            let theme = r.data.theme
+            const body = document.querySelector('body');
+            if (theme === 'DARK'){
+                body.setAttribute('theme-mode', 'dark');
+            }else {
+                body.removeAttribute('theme-mode');
+            }
+        })
+    },[])
+
+    useEffect(()=>{
         async function getTime(){
             if(isConfig){
                 let tableId = config.dateInfo.tableId
