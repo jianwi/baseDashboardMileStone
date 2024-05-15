@@ -260,6 +260,13 @@ export default function App() {
         }
     }
 
+    useEffect(()=>{
+        bitable.bridge.getLocale().then((lang)=>{
+          changeLang(lang as any)
+        })
+
+    },[])
+
     const updateConfig = (res: any) => {
         const {customConfig} = res;
         if (customConfig) {
@@ -495,6 +502,10 @@ function MileStone({config, isConfig}:{
     const [diffDay, setDiffDay] = useState(0)
     const {t} = useTranslation()
     const [iconColor, setIconColor] = useState(config.color)
+
+    useEffect(()=>{
+        setDiffDay(Math.ceil((new Date(time).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    }, [time])
     // 判断一下主题
 
     useEffect(()=>{
@@ -513,13 +524,11 @@ function MileStone({config, isConfig}:{
                 })
                 let time = data[1][0].text
                 setTime(dayjs(time).format(format))
-                setDiffDay(dayjs(time).diff(dayjs(target), 'day'))
             }else {
                 let info = await dashboard.getData()
                 console.log("正式环境的data", info)
                 let time = info[1][0].text
                 setTime(dayjs(time).format(format))
-                setDiffDay(dayjs(time).diff(dayjs(config.target), 'day'))
             }
             await dashboard.setRendered()
         }
@@ -528,7 +537,6 @@ function MileStone({config, isConfig}:{
                 getTime()
             }else {
                 setTime(dayjs(config.target).format(config.format))
-                setDiffDay(dayjs(time).diff(dayjs(config.target), 'day'))
             }
         }
         loadTimeInfo()
