@@ -506,7 +506,6 @@ function MileStone({config, isConfig}:{
     useEffect(()=>{
         setDiffDay(Math.ceil((new Date(time).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     }, [time])
-    // 判断一下主题
 
     useEffect(()=>{
         async function getTime(){
@@ -541,26 +540,18 @@ function MileStone({config, isConfig}:{
         }
         loadTimeInfo()
 
-        dashboard.onDataChange((ctx)=>{
-            console.log("data change", ctx)
+        let off = dashboard.onDataChange((r)=>{
+            console.log("data change", r)
             if (config.dateType === "ref"){
-                let info = ctx
-                // @ts-ignore
+                let info = r.data
                 let time = info[1][0].text
                 console.log("data change,时间", time)
                 setTime(dayjs(time).format(format))
             }
         })
-        dashboard.onConfigChange((ctx)=>{
-            console.log("config change")
-            if (config.dateType === "ref"){
-                let info = ctx
-                // @ts-ignore
-                let time = info[1][0].text
-                console.log("data change,时间", time)
-                setTime(dayjs(time).format(format))
-            }
-        })
+        return ()=>{
+            off()
+        }
     },[config, isConfig])
 
 
