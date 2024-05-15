@@ -266,12 +266,14 @@ export default function App() {
           changeLang(lang as any)
         })
 
-        function changeTheme(theme) {
+        function changeTheme(theme:string) {
             const body = document.querySelector('body');
             if (theme === 'DARK'){
+                // @ts-ignore
                 body.setAttribute('theme-mode', 'dark');
                 setTheme('DARK')
             }else {
+                // @ts-ignore
                 body.removeAttribute('theme-mode');
                 setTheme('LIGHT')
             }
@@ -281,9 +283,8 @@ export default function App() {
             console.log("theme", theme)
             changeTheme(theme)
         })
-        bitable.bridge.onThemeChange((theme)=>{
-            console.log("theme", theme)
-            changeTheme(theme)
+        bitable.bridge.onThemeChange((res)=>{
+            changeTheme(res.data.theme)
         })
 
     },[])
@@ -525,12 +526,14 @@ function MileStone({config, isConfig}:{
 
     useEffect(()=>{
 
-        function changeTheme(theme) {
+        function changeTheme(theme:string) {
             const body = document.querySelector('body');
             if (theme === 'DARK'){
+                // @ts-ignore
                 body.setAttribute('theme-mode', 'dark');
                 setTheme('DARK')
             }else {
+                // @ts-ignore
                 body.removeAttribute('theme-mode');
                 setTheme('LIGHT')
             }
