@@ -497,7 +497,6 @@ function MileStone({config, isConfig}:{
     useEffect(()=>{
         async function getTime(){
             if(isConfig){
-                console.log('正在配置中',config)
                 let tableId = config.dateInfo.tableId
                 let fieldId = config.dateInfo.fieldId
                 let dateType = config.dateInfo.dateType
@@ -512,18 +511,45 @@ function MileStone({config, isConfig}:{
                 let time = data[1][0].text
                 setTime(dayjs(time).format(format))
             }else {
-                console.log('正式环境,获取数据', config)
                 let info = await dashboard.getData()
-                console.log("正式环境的 info", info)
+                console.log("正式环境的data", info)
                 let time = info[1][0].text
                 setTime(dayjs(time).format(format))
+                await dashboard.setRendered()
             }
         }
+        function loadTimeInfo() {
+            if (config.dateType === "ref"){
+                getTime()
+            }else {
+                setTime(dayjs(config.target).format(config.format))
+            }
+        }
+        loadTimeInfo()
 
-        if (config.dateType === "ref"){
-            getTime()
-        }else {
-            setTime(dayjs(config.target).format(config.format))
+        dashboard.onDataChange((ctx)=>{
+            console.log("data change", ctx)
+            if (config.dateType === "ref"){
+                let info = ctx
+                // @ts-ignore
+                let time = info[1][0].text
+                console.log("data change,时间", time)
+                setTime(dayjs(time).format(format))
+            }
+        })
+        dashboard.onConfigChange((ctx)=>{
+            console.log("config change")
+            if (config.dateType === "ref"){
+                let info = ctx
+                // @ts-ignore
+                let time = info[1][0].text
+                console.log("data change,时间", time)
+                setTime(dayjs(time).format(format))
+            }
+        })
+
+        return ()=>{
+
         }
 
     },[config, isConfig])
