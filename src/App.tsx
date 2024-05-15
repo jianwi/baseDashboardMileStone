@@ -531,7 +531,7 @@ function MileStone({config, isConfig}:{
 
     return (
         <Spin spinning={!time}>
-        <div style={{width: '100vw', textAlign: 'center', overflow: 'hidden'}}>
+        <div style={{width: '100%', textAlign: 'center', overflow: 'hidden'}}>
             <div style={{
                 display:"flex",
                 justifyContent:"center"
