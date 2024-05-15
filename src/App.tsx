@@ -228,6 +228,7 @@ export default function App() {
         target: Date.now(),
         format: 'YYYY-MM-DD',
     })
+    const [theme, setTheme] = useState('LIGHT')
 
     const isCreate = dashboard.state === DashboardState.Create
     /** 是否配置模式下 */
@@ -265,16 +266,24 @@ export default function App() {
           changeLang(lang as any)
         })
 
-        bitable.bridge.getTheme().then((theme)=>{
-            console.log("theme", theme)
+        function changeTheme(theme) {
             const body = document.querySelector('body');
             if (theme === 'DARK'){
                 body.setAttribute('theme-mode', 'dark');
+                setTheme('DARK')
             }else {
                 body.removeAttribute('theme-mode');
+                setTheme('LIGHT')
             }
+        }
 
-
+        bitable.bridge.getTheme().then((theme)=>{
+            console.log("theme", theme)
+            changeTheme(theme)
+        })
+        bitable.bridge.onThemeChange((theme)=>{
+            console.log("theme", theme)
+            changeTheme(theme)
         })
 
     },[])
@@ -467,7 +476,7 @@ export default function App() {
                                                     width: 18,
                                                     height: 18,
                                                     borderRadius: 4,
-                                                    background: item,
+                                                    background: (item === "#1F2329" && theme === 'DARK')?"#FFF":item,
                                                         padding: 2,
                                                         textAlign: 'center',
                                                     marginRight: 7,
@@ -507,6 +516,7 @@ function MileStone({config, isConfig}:{
     const [time, setTime] = useState("")
     const [diffDay, setDiffDay] = useState(0)
     const {t} = useTranslation()
+    const [theme, setTheme] = useState('LIGHT')
     const [iconColor, setIconColor] = useState(config.color)
 
     useEffect(()=>{
@@ -514,24 +524,26 @@ function MileStone({config, isConfig}:{
     }, [time])
 
     useEffect(()=>{
-        bitable.bridge.getTheme().then((theme)=>{
-            console.log("theme", theme)
+
+        function changeTheme(theme) {
             const body = document.querySelector('body');
             if (theme === 'DARK'){
                 body.setAttribute('theme-mode', 'dark');
+                setTheme('DARK')
             }else {
                 body.removeAttribute('theme-mode');
+                setTheme('LIGHT')
             }
+        }
+
+        bitable.bridge.getTheme().then((theme)=>{
+            console.log("theme", theme)
+            changeTheme(theme)
         })
 
         bitable.bridge.onThemeChange((r)=>{
             let theme = r.data.theme
-            const body = document.querySelector('body');
-            if (theme === 'DARK'){
-                body.setAttribute('theme-mode', 'dark');
-            }else {
-                body.removeAttribute('theme-mode');
-            }
+            changeTheme(theme)
         })
     },[])
 
@@ -595,10 +607,10 @@ function MileStone({config, isConfig}:{
                         width: `${isConfig?16:32}vmin`,
                         height: "auto"
                     }} width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0.5" width="90" height="90" rx="20" fill={color} fill-opacity="0.1"/>
+                        <rect x="0.5" width="90" height="90" rx="20" fill={(color === "#1F2329" && theme==="DARK")?"#FFF":color } fill-opacity="0.1"/>
                         <path
                             d="M67.8286 39.125C63.9929 39.7571 57.7357 39.9286 53.5786 32.0429C49.1214 23.5679 41.9214 23.3107 37.7107 24.0821C35.6643 24.4571 34.1321 26.1714 34.1321 27.8321V48.8964C35.3429 49.3571 36.6393 48.875 36.9714 48.8107C37.0571 48.7893 37.1321 48.7786 37.2286 48.7571C39.9071 48.1679 42.7357 47.8893 49.7429 51.2536C58.5286 55.4643 66.2214 47.7071 69.2 42.3071C69.4143 41.9321 70.1321 40.1429 70.1321 38.4286C69.0929 38.8571 67.8286 39.125 67.8286 39.125ZM31.5714 23H29.8571C29.3857 23 29 23.3857 29 23.8571V70.1429C29 70.6143 29.3857 71 29.8571 71H31.5714C32.0429 71 32.4286 70.6143 32.4286 70.1429V23.8571C32.4286 23.3857 32.0429 23 31.5714 23Z"
-                            fill={color}/>
+                            fill={(color === "#1F2329" && theme==="DARK")?"#FFF":color}/>
                     </svg>
                 </div>
                 <Tooltip trigger={'hover'} position={'bottom'}
