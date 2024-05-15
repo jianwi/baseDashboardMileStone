@@ -494,6 +494,8 @@ function MileStone({config, isConfig}:{
     const [time, setTime] = useState("")
     const [diffDay, setDiffDay] = useState(0)
     const {t} = useTranslation()
+    const [iconColor, setIconColor] = useState(config.color)
+    // 判断一下主题
 
     useEffect(()=>{
         async function getTime(){
@@ -551,11 +553,6 @@ function MileStone({config, isConfig}:{
                 setTime(dayjs(time).format(format))
             }
         })
-
-        return ()=>{
-
-        }
-
     },[config, isConfig])
 
 
@@ -568,35 +565,37 @@ function MileStone({config, isConfig}:{
             }}>
                 <div>
                     <svg style={{
-                        width: "18vmin",
-                        height: "17vmin",
+                        width: `${isConfig?16:32}vmin`,
+                        height: "auto"
                     }} width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0.5" width="90" height="90" rx="20" fill={config.color} fill-opacity="0.1"/>
+                        <rect x="0.5" width="90" height="90" rx="20" fill={color} fill-opacity="0.1"/>
                         <path
-                            d="M63.8286 37.125C59.9929 37.7571 53.7357 37.9286 49.5786 30.0429C45.1214 21.5679 37.9214 21.3107 33.7107 22.0821C31.6643 22.4571 30.1321 24.1714 30.1321 25.8321V46.8964C31.3429 47.3571 32.6393 46.875 32.9714 46.8107C33.0571 46.7893 33.1321 46.7786 33.2286 46.7571C35.9071 46.1679 38.7357 45.8893 45.7429 49.2536C54.5286 53.4643 62.2214 45.7071 65.2 40.3071C65.4143 39.9321 66.1321 38.1429 66.1321 36.4286C65.0929 36.8571 63.8286 37.125 63.8286 37.125ZM27.5714 21H25.8571C25.3857 21 25 21.3857 25 21.8571V68.1429C25 68.6143 25.3857 69 25.8571 69H27.5714C28.0429 69 28.4286 68.6143 28.4286 68.1429V21.8571C28.4286 21.3857 28.0429 21 27.5714 21Z"
-                            fill={config.color}/>
+                            d="M67.8286 39.125C63.9929 39.7571 57.7357 39.9286 53.5786 32.0429C49.1214 23.5679 41.9214 23.3107 37.7107 24.0821C35.6643 24.4571 34.1321 26.1714 34.1321 27.8321V48.8964C35.3429 49.3571 36.6393 48.875 36.9714 48.8107C37.0571 48.7893 37.1321 48.7786 37.2286 48.7571C39.9071 48.1679 42.7357 47.8893 49.7429 51.2536C58.5286 55.4643 66.2214 47.7071 69.2 42.3071C69.4143 41.9321 70.1321 40.1429 70.1321 38.4286C69.0929 38.8571 67.8286 39.125 67.8286 39.125ZM31.5714 23H29.8571C29.3857 23 29 23.3857 29 23.8571V70.1429C29 70.6143 29.3857 71 29.8571 71H31.5714C32.0429 71 32.4286 70.6143 32.4286 70.1429V23.8571C32.4286 23.3857 32.0429 23 31.5714 23Z"
+                            fill={color}/>
                     </svg>
                 </div>
-                <Tooltip trigger={'hover'} position={'bottom'} content={t(`距离目标日期{{count}}天`,{count: diffDay}) }>
+                <Tooltip trigger={'hover'} position={'bottom'}
+                         content={diffDay > 0 ? t(`距离目标日期{{count}}天`, {count: diffDay}) : t(`已超过设定日期`)}>
                     <div style={{
+                        marginLeft: "2vmin",
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "center",
                     }}>
                         <div style={{
-                            fontSize: "7vmin",
+                            fontSize: `${isConfig?8.4:16.8}vmin`,
                             color: "#373c44",
                             fontWeight: 600,
-                            padding: "0.4vmin"
+                            marginBottom: `${isConfig?1:2}vmin`
                         }}>
                             {time}
                         </div>
                         <div style={{
-                            fontSize: "2.5vmin",
+                            fontSize: `${isConfig?3:6}vmin`,
                             color: "#5f6369",
-                            padding: "0.4vmin",
+                            marginBottom: "2vmin",
                             textAlign: "left",
-                            fontWeight: 500,
+                            fontWeight: 400,
                         }}>
                             {title}
                         </div>
