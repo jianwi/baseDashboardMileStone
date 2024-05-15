@@ -3,9 +3,6 @@ body{
     background: transparent !important;
     background-image: none !important;
 }
-html {
-    --text-title: rgba(31, 35, 41, 1);
-}
 
 .ant-btn-primary {
     background-color: rgba(20, 86, 240, 1);
@@ -18,7 +15,7 @@ html {
 }
 
 .main-config {
-    border-top: rgba(222, 224, 227, 1) 1px solid;
+    border-top: var(--line-color) 1px solid;
 }
 
 .content {
@@ -36,7 +33,7 @@ html {
     justify-content: flex-start;
     gap: 20px;
     flex-direction: column;
-    border-left: rgba(222, 224, 227, 1) 1px solid;
+    border-left: var(--line-color) 1px solid;
     padding: 20px;
     box-sizing: border-box;
 }
@@ -120,9 +117,6 @@ html {
     padding: 8px;
 }
 
-.date-picker{
-    background: #f5f6f7;
-}
 
 .tab-wrap {
     display: flex;
@@ -131,7 +125,7 @@ html {
     padding: 4px;
     margin-top: 8px;
     border-radius: 6px;
-    border: #525252 1px solid;
+    border: var(--border-color) 1px solid;
 }
 .tab-item{
     text-align: center;
@@ -143,7 +137,7 @@ html {
 .tab-item.active{
     color: var(--active-color);
     font-weight: 500;
-    background: rgba(20, 86, 240, 0.10);
+    background: var(--active-wrap-color);
 }
 .mt8{
     margin-top: 8px;
@@ -159,8 +153,10 @@ html {
     --wrap-color: #f5f6f7;
     --icon-color: #646A73;
     --active-color: #1456F0;
+    --active-wrap-color: rgba(20, 86, 240, 0.10);
     --tab-wrap-color: #fff;
     --border-color: #fff;
+    --line-color: rgba(235, 235, 235, 0.15);
 }
 
 body[theme-mode="dark"] {
@@ -173,6 +169,8 @@ body[theme-mode="dark"] {
     --wrap-color: #373737;
     --icon-color: #ebebeb;
     --active-color: #4c87ff;
+    --active-wrap-color: rgba(76, 135, 255, 0.10);
     --tab-wrap-color: #373737;
     --border-color: #525252;
+    --line-color: rgba(207, 207, 207, 0.15)
 }
