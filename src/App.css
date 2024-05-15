@@ -127,10 +127,11 @@ html {
 .tab-wrap {
     display: flex;
     justify-content: space-between;
-    background: #fff;
+    background: var(--tab-wrap-color);
     padding: 4px;
     margin-top: 8px;
     border-radius: 6px;
+    border: #525252 1px solid;
 }
 .tab-item{
     text-align: center;
@@ -140,7 +141,7 @@ html {
     font-size: 12px;
 }
 .tab-item.active{
-    color: #1456F0;
+    color: var(--active-color);
     font-weight: 500;
     background: rgba(20, 86, 240, 0.10);
 }
@@ -156,16 +157,22 @@ html {
     --title-color: #373c44;
     --small-title-text-color: #646A73;
     --wrap-color: #f5f6f7;
-    --icon-color: #646A73,
+    --icon-color: #646A73;
+    --active-color: #1456F0;
+    --tab-wrap-color: #fff;
+    --border-color: #fff;
 }
 
 body[theme-mode="dark"] {
     --background-color: #000000;
-    --text-color: #ffffff;
-    --text-title: #fff;
-    --sub-title-color: #fff;
-    --title-color: #fff;
-    --small-title-text-color: #fff;
-    --wrap-color: #1a1a1a;
-    --icon-color: #fff;
+    --text-color: #ebebeb;
+    --text-title: #ebebeb;
+    --sub-title-color: #ebebeb;
+    --title-color: #ebebeb;
+    --small-title-text-color: #ebebeb;
+    --wrap-color: #373737;
+    --icon-color: #ebebeb;
+    --active-color: #4c87ff;
+    --tab-wrap-color: #373737;
+    --border-color: #525252;
 }
