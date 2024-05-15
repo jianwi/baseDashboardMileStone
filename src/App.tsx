@@ -1,7 +1,7 @@
 import './App.css';
 import React, {useEffect, useState} from 'react';
 import {bitable, dashboard, DashboardState, IDataCondition, Rollup} from "@lark-base-open/js-sdk";
-import {Button, ConfigProvider, DatePicker, Input, Select, Spin} from '@douyinfe/semi-ui';
+import {Button, ConfigProvider, DatePicker, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
 import "./i18n/index"
 import {useTranslation} from "react-i18next";
@@ -492,6 +492,7 @@ function MileStone({config, isConfig}:{
 
     const {title, format, color,target} = config
     const [time, setTime] = useState("")
+    const [diffDay, setDiffDay] = useState(0)
     const {t} = useTranslation()
 
     useEffect(()=>{
@@ -510,19 +511,22 @@ function MileStone({config, isConfig}:{
                 })
                 let time = data[1][0].text
                 setTime(dayjs(time).format(format))
+                setDiffDay(dayjs(time).diff(dayjs(target), 'day'))
             }else {
                 let info = await dashboard.getData()
                 console.log("正式环境的data", info)
                 let time = info[1][0].text
                 setTime(dayjs(time).format(format))
-                await dashboard.setRendered()
+                setDiffDay(dayjs(time).diff(dayjs(config.target), 'day'))
             }
+            await dashboard.setRendered()
         }
         function loadTimeInfo() {
             if (config.dateType === "ref"){
                 getTime()
             }else {
                 setTime(dayjs(config.target).format(config.format))
+                setDiffDay(dayjs(time).diff(dayjs(config.target), 'day'))
             }
         }
         loadTimeInfo()
@@ -573,29 +577,32 @@ function MileStone({config, isConfig}:{
                             fill={config.color}/>
                     </svg>
                 </div>
-                <div style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                }}>
+                <Tooltip trigger={'hover'} position={'bottom'} content={t(`距离目标日期{{count}}天`,{count: diffDay}) }>
                     <div style={{
-                        fontSize: "7vmin",
-                        color: "#373c44",
-                        fontWeight: 600,
-                        padding: "0.4vmin"
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
                     }}>
-                        {time}
+                        <div style={{
+                            fontSize: "7vmin",
+                            color: "#373c44",
+                            fontWeight: 600,
+                            padding: "0.4vmin"
+                        }}>
+                            {time}
+                        </div>
+                        <div style={{
+                            fontSize: "2.5vmin",
+                            color: "#5f6369",
+                            padding: "0.4vmin",
+                            textAlign: "left",
+                            fontWeight: 500,
+                        }}>
+                            {title}
+                        </div>
                     </div>
-                    <div style={{
-                        fontSize: "2.5vmin",
-                        color: "#5f6369",
-                        padding: "0.4vmin",
-                        textAlign:"left",
-                        fontWeight: 500,
-                    }}>
-                        {title}
-                    </div>
-                </div>
+                </Tooltip>
+
             </div>
         </div>
         </Spin>

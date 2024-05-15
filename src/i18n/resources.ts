@@ -15,6 +15,7 @@ const config = [
     ['日期格式',"日期格式","Date Format","日付形式"],
     ['图标颜色',"图标颜色","Icon Color","アイコンの色"],
     ['确定',"确定","Confirm","確認"],
+    ['距离目标日期{{count}}天',"距离目标日期{{count}}天","{{count}} days from target date","目標日から{{count}}日"],
 
 
 
