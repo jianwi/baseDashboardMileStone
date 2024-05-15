@@ -115,7 +115,7 @@ html {
 }
 
 .common-wrap{
-    background: #f5f6f7;
+    background: var(--wrap-color);
     border-radius: 6px;
     padding: 8px;
 }
@@ -146,4 +146,26 @@ html {
 }
 .mt8{
     margin-top: 8px;
+}
+
+:root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --text-title: #333;
+    --sub-title-color: #5f6369;
+    --title-color: #373c44;
+    --small-title-text-color: #646A73;
+    --wrap-color: #f5f6f7;
+    --icon-color: #646A73,
+}
+
+body[theme-mode="dark"] {
+    --background-color: #000000;
+    --text-color: #ffffff;
+    --text-title: #fff;
+    --sub-title-color: #fff;
+    --title-color: #fff;
+    --small-title-text-color: #fff;
+    --wrap-color: #1a1a1a;
+    --icon-color: #fff;
 }
