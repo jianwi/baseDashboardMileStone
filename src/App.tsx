@@ -607,7 +607,7 @@ function MileStone({config, isConfig}:{
             }}>
                 <div>
                     <svg style={{
-                        width: `${isConfig?16:32}vmin`,
+                        width: `${isConfig?"16vmin":"16vmax"}`,
                         height: "auto"
                     }} width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="0.5" width="90" height="90" rx="20" fill={(color === "#1F2329" && theme==="DARK")?"#FFF":color } fill-opacity="0.1"/>
@@ -619,23 +619,23 @@ function MileStone({config, isConfig}:{
                 <Tooltip trigger={'hover'} position={'bottom'}
                          content={diffDay > 0 ? t(`距离目标日期{{count}}天`, {count: diffDay}) : t(`已超过设定日期`)}>
                     <div style={{
-                        marginLeft: "2vmin",
+                        marginLeft: `${isConfig?"2vmin":"2vmax"}`,
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "center",
                     }}>
                         <div style={{
-                            fontSize: `${isConfig?8.4:16.8}vmin`,
+                            fontSize: `${isConfig?"8.4vmin":"8.4vmax"}`,
                             color: "var(--title-color)",
                             fontWeight: 600,
-                            marginBottom: `${isConfig?1:2}vmin`
+                            marginBottom: `${isConfig?"1vmin":"1vmax"}`
                         }}>
                             {time}
                         </div>
                         <div style={{
-                            fontSize: `${isConfig?3:6}vmin`,
+                            fontSize: `${isConfig?"3vmin":"3vmax"}`,
                             color: "var(--sub-title-color)",
-                            marginBottom: "2vmin",
+                            marginBottom: `${isConfig?"2vmin":"1vmax"}`,
                             textAlign: "left",
                             fontWeight: 400,
                         }}>
