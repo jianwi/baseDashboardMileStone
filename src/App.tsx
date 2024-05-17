@@ -222,7 +222,7 @@ export default function App() {
     const {t} = useTranslation()
     const [config, setConfig] = useState<IMileStoneConfig>({
         title: "Project Launch Time",
-        color: '#373C43',
+        color: colors[0],
         dateType: 'date',
         dateInfo: {},
         target: Date.now(),
@@ -518,7 +518,6 @@ function MileStone({config, isConfig}:{
     const [diffDay, setDiffDay] = useState(0)
     const {t} = useTranslation()
     const [theme, setTheme] = useState('LIGHT')
-    const [iconColor, setIconColor] = useState(config.color)
 
     useEffect(()=>{
         setDiffDay(Math.ceil((new Date(time).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
