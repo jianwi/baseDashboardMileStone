@@ -65,7 +65,8 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
     async function getDateFields(table_id:string){
         console.log("获取", table_id)
         let table = await bitable.base.getTableById(table_id);
-        let fields = await table.getFieldMetaListByType(5);
+        let allFields = await table.getFieldMetaList();
+        let fields = allFields.filter(item=>item.type===5||item.type===1001||item.type===1002)
         setFields(fields)
         setConfig({
             ...config,
