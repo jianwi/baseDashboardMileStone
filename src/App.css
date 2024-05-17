@@ -119,6 +119,7 @@ body{
 
 
 .tab-wrap {
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     background: var(--tab-wrap-color);
