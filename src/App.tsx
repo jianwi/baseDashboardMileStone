@@ -53,6 +53,35 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
     async function getTables() {
         let tables = await bitable.base.getTableMetaList();
         setTables(tables);
+        if (tables && tables.length > 0){
+            let targetTableId = tables[0].id
+            let fields:any = []
+            let targetFieldId = ""
+            for (let table_info of tables) {
+                // console.log("表格",table_info)
+                let table = await bitable.base.getTableById(table_info.id);
+                let allFields = await table.getFieldMetaList();
+                let dateFields = allFields.filter(item=>item.type===5||item.type===1001||item.type===1002)
+                if (dateFields && dateFields.length > 0){
+                    fields = dateFields
+                    targetTableId = table_info.id
+                    targetFieldId = dateFields[0].id
+                    break
+                }
+            }
+            if (fields.length >0){
+                setFields(fields)
+                setConfig({
+                    ...config,
+                    dateInfo: {
+                        tableId: targetTableId,
+                        fieldId: targetFieldId,
+                        dateType: 'earliest'
+                    }
+                })
+            }
+        }
+
         if (config.dateType === 'ref' && config.dateInfo.tableId) {
             console.log("you have table id")
             getDateFields(config.dateInfo.tableId);
@@ -87,7 +116,6 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                         ...config,
                         dateInfo: {
                             tableId: v,
-                            fieldId: '',
                             dateType: 'earliest'
                         }
                     })
