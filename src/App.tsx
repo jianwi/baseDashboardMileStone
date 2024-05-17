@@ -104,6 +104,7 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                 tableId: table_id
             }
         })
+        return fields
     }
 
     return (<div>
@@ -111,11 +112,12 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
             <div className={'label'} style={{marginTop:8}}>{t("数据源")}</div>
             <Select
                 onChange={async (v)=>{
-                    await getDateFields(v as string);
+                    let fields = await getDateFields(v as string);
                     setConfig({
                         ...config,
                         dateInfo: {
                             tableId: v,
+                            fieldId: fields[0]? fields[0].id : "",
                             dateType: 'earliest'
                         }
                     })
