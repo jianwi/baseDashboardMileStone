@@ -427,6 +427,7 @@ export default function App() {
                                             config.dateType === 'date' && (
                                                 <div>
                                                     <DatePicker
+                                                        showClear={false}
                                                         format={"yyyy/MM/dd"}
                                                         style={{width: '100%', marginTop: 8}}
                                                         value={new Date(config.target)}
