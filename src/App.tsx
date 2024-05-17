@@ -659,6 +659,7 @@ function MileStone({config, isConfig}:{
                             fontSize: `${isConfig?"8.4vmin":"8.4vmax"}`,
                             color: "var(--title-color)",
                             fontWeight: 600,
+                            alignSelf: "flex-start",
                             marginBottom: `${isConfig?"1vmin":"1vmax"}`
                         }}>
                             {time}
