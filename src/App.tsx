@@ -1,6 +1,14 @@
 import './App.css';
 import React, {useEffect, useState} from 'react';
-import {bitable, dashboard, DashboardState, IDataCondition, Rollup} from "@lark-base-open/js-sdk";
+import {
+    bitable,
+    dashboard,
+    DashboardState,
+    DATA_SOURCE_SORT_TYPE,
+    IDataCondition,
+    ORDER,
+    Rollup
+} from "@lark-base-open/js-sdk";
 import {Button, ConfigProvider, DatePicker, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
 import "./i18n/index"
@@ -358,10 +366,11 @@ export default function App() {
         if (config.dateType === 'ref'){
             dataConditions = [{
                 tableId: config.dateInfo.tableId,
-                series: [{
-                    fieldId: config.dateInfo.fieldId,
-                    rollup: config.dateInfo.dateType === 'earliest' ? Rollup.MIN : Rollup.MAX
-                }]
+                groups: [
+                    {
+                        fieldId: config.dateInfo.fieldId,
+                    }
+                ],
             }]
         }
         dashboard.saveConfig({
@@ -590,17 +599,39 @@ function MileStone({config, isConfig}:{
                 let type = dateType === 'earliest' ? Rollup.MIN : Rollup.MAX
                 let data = await dashboard.getPreviewData({
                     tableId: tableId,
-                    series: [{
-                        fieldId: fieldId,
-                        rollup: type
-                    }]
+                    groups: [
+                        {
+                            fieldId: fieldId
+                        }
+                    ],
                 })
-                let time = data[1][0].text
+                console.log("预览数据", data)
+                let time = ""
+                if (dateType === 'earliest'){
+                    for (let i=1;i<data.length;i++){
+                        if (data[i][0].text){
+                            time = data[i][0].text
+                            break
+                        }
+                    }
+                }else {
+                    time = data[data.length-1][0].text
+                }
+                console.log("预览数据的时间", time)
                 setTime(dayjs(time).format(format))
             }else {
-                let info = await dashboard.getData()
-                console.log("正式环境的data", info)
-                let time = info[1][0].text
+                let data = await dashboard.getData()
+                let time = ""
+                if (config.dateInfo.dateType === 'earliest'){
+                    for (let i=1;i<data.length;i++){
+                        if (data[i][0].text){
+                            time = data[i][0].text
+                            break
+                        }
+                    }
+                }else {
+                    time = data[data.length-1][0].text
+                }
                 setTime(dayjs(time).format(format))
             }
             await dashboard.setRendered()
