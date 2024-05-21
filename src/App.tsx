@@ -610,11 +610,13 @@ function MileStone({config, isConfig}:{
                 if (dateType === 'earliest'){
                     for (let i=1;i<data.length;i++){
                         if (data[i][0].text){
+                            // @ts-ignore
                             time = data[i][0].text
                             break
                         }
                     }
                 }else {
+                    // @ts-ignore
                     time = data[data.length-1][0].text
                 }
                 console.log("预览数据的时间", time)
@@ -625,11 +627,13 @@ function MileStone({config, isConfig}:{
                 if (config.dateInfo.dateType === 'earliest'){
                     for (let i=1;i<data.length;i++){
                         if (data[i][0].text){
+                            // @ts-ignore
                             time = data[i][0].text
                             break
                         }
                     }
                 }else {
+                    // @ts-ignore
                     time = data[data.length-1][0].text
                 }
                 setTime(dayjs(time).format(format))
