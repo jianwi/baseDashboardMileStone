@@ -290,8 +290,8 @@ export default function App() {
             dateInfo
         })
     }
-    const changeLang = (lang: 'en-us' | 'zh-cn') => {
-        if (lang === 'zh-cn') {
+    const changeLang = (lang: 'en-us' | 'zh-CN') => {
+        if (lang === 'zh-CN') {
             setLocale(zhCN);
             dayjs.locale('zh-cn');
         } else {
