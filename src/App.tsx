@@ -705,6 +705,11 @@ function MileStone({config, isConfig}:{
                             marginBottom: `${isConfig?"2vmin":"1vmax"}`,
                             textAlign: "left",
                             fontWeight: 400,
+                            // 不换号，超过省略号
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxWidth: `${isConfig?"50vmin":"50vmax"}`
                         }}>
                             {title}
                         </div>

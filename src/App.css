@@ -157,7 +157,7 @@ body{
     --active-wrap-color: rgba(20, 86, 240, 0.10);
     --tab-wrap-color: #fff;
     --border-color: #fff;
-    --line-color: rgba(235, 235, 235, 0.15);
+    --line-color: rgba(235, 235, 235, 0.85);
 }
 
 body[theme-mode="dark"] {
