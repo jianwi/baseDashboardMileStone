@@ -49,7 +49,7 @@ function CheckIcon({color}: {color: string}) {
             fill={color}/>
         <path
             d="M10.145 15.6067L17.221 8.5308C17.4785 8.27328 17.8963 8.27503 18.1538 8.53257C18.4145 8.79326 18.4119 9.218 18.1468 9.4741C15.8213 11.7202 15.3281 12.1957 10.7628 16.6346C10.3818 17.005 9.7738 17.0164 9.38695 16.6522C8.19119 15.5262 7.06993 14.4154 5.90217 13.2492C5.64195 12.9893 5.64287 12.5674 5.90292 12.3074C6.16298 12.0473 6.58477 12.0464 6.84482 12.3064L10.145 15.6067Z"
-            fill="white"/>
+            fill={color==="#FFF"?'#000':'white'}/>
     </svg>
 }
 
@@ -504,7 +504,7 @@ export default function App() {
                                                     return  <div style={{
                                                         marginRight: 7,
                                                     }}>
-                                                        <CheckIcon color={item} />
+                                                        <CheckIcon color={(item === "#1F2329" && theme === 'DARK')?"#FFF":item} />
                                                     </div>
                                                 }
                                                 return <div
