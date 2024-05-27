@@ -17,6 +17,7 @@ const config = [
     ['确定',"确定","Confirm","確認"],
     ['距离目标日期{{count}}天',"距离目标日期{{count}}天","{{count}} days from target date","目標日から{{count}}日"],
     ['已超过设定日期',"已超过设定日期","Exceeded the set date","設定日を超過しました"],
+    ['项目启动日期',"项目启动日期","Project Launch Date","プロジェクトの開始日"],
 ]
 
 

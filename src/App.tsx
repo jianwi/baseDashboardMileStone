@@ -260,7 +260,7 @@ export default function App() {
     const [locale, setLocale] = useState(zhCN);
     const {t} = useTranslation()
     const [config, setConfig] = useState<IMileStoneConfig>({
-        title: "Project Launch Time",
+        title: t("项目启动日期"),
         color: colors[0],
         dateType: 'date',
         dateInfo: {},
