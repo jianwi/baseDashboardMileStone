@@ -195,3 +195,6 @@ body[theme-mode="dark"] {
     background: var(--active-wrap-color);
     border-radius: 4px;
 }
+.semi-upload-drag-area{
+    border: none !important;
+}

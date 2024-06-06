@@ -9,7 +9,7 @@ import {
     ORDER,
     Rollup
 } from "@lark-base-open/js-sdk";
-import {Button, ConfigProvider, DatePicker, Divider, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
+import {Button, ConfigProvider, DatePicker, Divider, Icon, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
 import "./i18n/index"
 import {useTranslation} from "react-i18next";
@@ -505,49 +505,52 @@ export default function App() {
 
                                 <SettingIcon config={config} setConfig={setConfig}/>
 
-                                <div className='form-item'>
-                                    <div style={{
-                                        color: 'var(--small-title-text-color)',
-                                        fontSize: 12,
-                                    }}>
-                                        {t('图标颜色')}
-                                    </div>
-                                    <div style={{
-                                        display: 'flex',
-                                        marginTop: 8
-                                    }}>
-                                        {
-                                            colors.map(item => {
-                                                if (config.color === item) {
-                                                    return <div style={{
-                                                        marginRight: 7,
-                                                    }}>
-                                                        <CheckIcon
-                                                            color={(item === "#1F2329" && theme === 'DARK') ? "#FFF" : item}/>
+                                {
+                                    config.iconType === 'preset' && (<div className='form-item'>
+                                        <div style={{
+                                            color: 'var(--small-title-text-color)',
+                                            fontSize: 12,
+                                        }}>
+                                            {t('图标颜色')}
+                                        </div>
+                                        <div style={{
+                                            display: 'flex',
+                                            marginTop: 8
+                                        }}>
+                                            {
+                                                colors.map(item => {
+                                                    if (config.color === item) {
+                                                        return <div style={{
+                                                            marginRight: 7,
+                                                        }}>
+                                                            <CheckIcon
+                                                                color={(item === "#1F2329" && theme === 'DARK') ? "#FFF" : item}/>
+                                                        </div>
+                                                    }
+                                                    return <div
+                                                        onClick={() => {
+                                                            setConfig({
+                                                                ...config,
+                                                                color: item,
+                                                            })
+                                                        }}
+                                                        style={{
+                                                            width: 18,
+                                                            height: 18,
+                                                            borderRadius: 4,
+                                                            background: (item === "#1F2329" && theme === 'DARK') ? "#FFF" : item,
+                                                            padding: 2,
+                                                            textAlign: 'center',
+                                                            marginRight: 7,
+                                                        }}>
                                                     </div>
-                                                }
-                                                return <div
-                                                    onClick={() => {
-                                                        setConfig({
-                                                            ...config,
-                                                            color: item,
-                                                        })
-                                                    }}
-                                                    style={{
-                                                        width: 18,
-                                                        height: 18,
-                                                        borderRadius: 4,
-                                                        background: (item === "#1F2329" && theme === 'DARK') ? "#FFF" : item,
-                                                        padding: 2,
-                                                        textAlign: 'center',
-                                                        marginRight: 7,
-                                                    }}>
-                                                </div>
-                                            })
-                                        }
+                                                })
+                                            }
 
-                                    </div>
-                                </div>
+                                        </div>
+                                    </div>)
+                                }
+
                             </div>
 
                             <Button
@@ -695,7 +698,12 @@ function MileStone({config, isConfig}: {
                     <div style={{position:"relative",
                         width: `${isConfig ? "16vmin" : "16vmax"}`,
                         height: `${isConfig ? "16vmin" : "16vmax"}`,
+                        display:"flex",
+                        alignItems:"center",
+                        justifyContent:"center"
                     }}>
+                        { config.iconType === "custom" && config.customIcon && <img style={{width:"93%"}} src={URL.createObjectURL(new Blob([config.customIcon], { type: 'image/svg+xml' }))}/> }
+
                         {/*<svg style={{*/}
                         {/*    width: `${isConfig ? "16vmin" : "16vmax"}`,*/}
                         {/*    height: "auto"*/}
@@ -706,20 +714,23 @@ function MileStone({config, isConfig}: {
                         {/*        d="M67.8286 39.125C63.9929 39.7571 57.7357 39.9286 53.5786 32.0429C49.1214 23.5679 41.9214 23.3107 37.7107 24.0821C35.6643 24.4571 34.1321 26.1714 34.1321 27.8321V48.8964C35.3429 49.3571 36.6393 48.875 36.9714 48.8107C37.0571 48.7893 37.1321 48.7786 37.2286 48.7571C39.9071 48.1679 42.7357 47.8893 49.7429 51.2536C58.5286 55.4643 66.2214 47.7071 69.2 42.3071C69.4143 41.9321 70.1321 40.1429 70.1321 38.4286C69.0929 38.8571 67.8286 39.125 67.8286 39.125ZM31.5714 23H29.8571C29.3857 23 29 23.3857 29 23.8571V70.1429C29 70.6143 29.3857 71 29.8571 71H31.5714C32.0429 71 32.4286 70.6143 32.4286 70.1429V23.8571C32.4286 23.3857 32.0429 23 31.5714 23Z"*/}
                         {/*        fill={(color === "#1F2329" && theme === "DARK") ? "#FFF" : color}/>*/}
                         {/*</svg>*/}
-                        <div style={{
-                            position: "absolute",
-                            left:0,
-                            top:0,
-                            borderRadius: "25%",
-                            width: `100%`,
-                            height: `100%`,
-                            background: (color === "#1F2329" && theme === "DARK") ? "#FFF" : color,
-                            opacity: 0.1
-                        }}>
-                        </div>
-                        {
-                            IconsMap[config.presetIconIndex]((color === "#1F2329" && theme === "DARK") ? "#FFF" : color, isConfig ? "11vmin" : "11vmax")
-                        }
+
+                        {config.iconType === "preset" && <>
+                            <div style={{
+                                position: "absolute",
+                                left:0,
+                                top:0,
+                                borderRadius: "25%",
+                                width: `100%`,
+                                height: `100%`,
+                                background: (color === "#1F2329" && theme === "DARK") ? "#FFF" : color,
+                                opacity: 0.1
+                            }}>
+                            </div>
+                            {
+                                IconsMap[config.presetIconIndex]((color === "#1F2329" && theme === "DARK") ? "#FFF" : color, isConfig ? "11vmin" : "11vmax")
+                            }
+                        </>}
                     </div>
                     <Tooltip trigger={'hover'} position={'bottom'}
                              content={diffDay > 0 ? t(`距离目标日期{{count}}天`, {count: diffDay}) : t(`已超过设定日期`)}>
