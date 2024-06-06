@@ -7,7 +7,7 @@ import {IconsMap} from "./iconMap";
 
 
 // @ts-ignore
-export default function ({config, setConfig}) {
+export default function ({config, setConfig, theme}) {
     const {t} = useTranslation()
 
     function changeIconType(value: string) {
@@ -21,7 +21,7 @@ export default function ({config, setConfig}) {
 
 
     return <div className={'form-item'}>
-        <div className={'label'}>图标</div>
+        <div className={'label'}>{t("图标")}</div>
         <div className={'common-wrap'}>
             <div className={'tab-wrap'}>
                 <div
@@ -41,7 +41,7 @@ export default function ({config, setConfig}) {
                     {t('自定义图标')}
                 </div>
             </div>
-            {config.iconType === 'preset' && <Preset config={config} setConfig={setConfig}/>}
+            {config.iconType === 'preset' && <Preset theme={theme} config={config} setConfig={setConfig}/>}
             {config.iconType === 'custom' && <Custom config={config} setConfig={setConfig}/>}
         </div>
     </div>
@@ -49,6 +49,7 @@ export default function ({config, setConfig}) {
 
 // @ts-ignore
 function Custom({config, setConfig}) {
+    const {t} = useTranslation()
 
     // @ts-ignore
     function upload({ file, onProgress, onError, onSuccess }) {
@@ -83,8 +84,8 @@ function Custom({config, setConfig}) {
             }
             border={null}
             draggable={true}
-            dragMainText={<div style={{padding: "30px 0", background: "transparent"}}>拖拽svg到这里上传，或者<span
-                style={{color: "var(--active-color)", marginLeft: 2}}>选择文件</span></div>}
+            dragMainText={<div style={{padding: "30px 0", background: "transparent"}}>{t("拖拽svg到这里上传，或者")}<span
+                style={{color: "var(--active-color)", marginLeft: 2}}>{t("选择文件")}</span></div>}
             dragIcon={<></>}
             accept={".svg"}>
 
@@ -98,7 +99,7 @@ function Custom({config, setConfig}) {
 
 // @ts-ignore
 
-function Preset({config, setConfig}) {
+function Preset({config, setConfig, theme}) {
     return <div className={'iconWrap'}>
         {
             // @ts-ignore
@@ -118,7 +119,7 @@ function Preset({config, setConfig}) {
                 >
                     {
                         // @ts-ignore
-                        IconsMap[index + 1]("#000")
+                        IconsMap[index + 1](theme === "DARK" ? "#fff":"#000")
                     }
                 </div>
             })

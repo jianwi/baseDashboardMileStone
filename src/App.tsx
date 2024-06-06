@@ -503,7 +503,7 @@ export default function App() {
                                 </div>
                                 <Divider margin={10}/>
 
-                                <SettingIcon config={config} setConfig={setConfig}/>
+                                <SettingIcon theme={theme} config={config} setConfig={setConfig}/>
 
                                 {
                                     config.iconType === 'preset' && (<div className='form-item'>
