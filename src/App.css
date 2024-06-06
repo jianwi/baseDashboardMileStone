@@ -36,6 +36,8 @@ body{
     border-left: var(--line-color) 1px solid;
     padding: 20px;
     box-sizing: border-box;
+    max-height: 100vh;
+    overflow: scroll;
 }
 
 .form {
@@ -174,4 +176,22 @@ body[theme-mode="dark"] {
     --tab-wrap-color: #373737;
     --border-color: #525252;
     --line-color: rgba(207, 207, 207, 0.15)
+}
+
+.iconWrap{
+    padding: 5px 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+
+}
+.icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    margin: 5px;
+}
+.icon.active{
+    background: var(--active-wrap-color);
+    border-radius: 4px;
 }

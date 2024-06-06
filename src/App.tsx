@@ -9,7 +9,7 @@ import {
     ORDER,
     Rollup
 } from "@lark-base-open/js-sdk";
-import {Button, ConfigProvider, DatePicker, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
+import {Button, ConfigProvider, DatePicker, Divider, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
 import "./i18n/index"
 import {useTranslation} from "react-i18next";
@@ -21,24 +21,29 @@ import classnames from 'classnames'
 import classNames from 'classnames'
 import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
+import SettingIcon from "./SettingIcon";
+import {IconsMap} from "./iconMap";
 
-interface IMileStoneConfig{
+interface IMileStoneConfig {
     title: string;
     dateType: 'date' | 'ref';
+    iconType: "preset" | "custom"; // 自定义 预设
+    presetIconIndex: number,
+    customIcon: string;
     dateInfo: any;
     target: number;
     format: string;
     color: string;
 }
 
-const formatOptions = ['YYYY/MM/DD','YYYY-MM-DD','MM-DD','MM/DD/YY','DD/MM/YY']
+const formatOptions = ['YYYY/MM/DD', 'YYYY-MM-DD', 'MM-DD', 'MM/DD/YY', 'DD/MM/YY']
 
-const colors = ["#1F2329","#1456F0","#7A35F0","#35BD4B","#2DBEAB","#FFC60A","#FF811A","#F54A45"]
+const colors = ["#1F2329", "#1456F0", "#7A35F0", "#35BD4B", "#2DBEAB", "#FFC60A", "#FF811A", "#F54A45"]
 
 
 dayjs.locale('zh-cn');
 
-function CheckIcon({color}: {color: string}) {
+function CheckIcon({color}: { color: string }) {
     return <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
         <path
@@ -49,35 +54,36 @@ function CheckIcon({color}: {color: string}) {
             fill={color}/>
         <path
             d="M10.145 15.6067L17.221 8.5308C17.4785 8.27328 17.8963 8.27503 18.1538 8.53257C18.4145 8.79326 18.4119 9.218 18.1468 9.4741C15.8213 11.7202 15.3281 12.1957 10.7628 16.6346C10.3818 17.005 9.7738 17.0164 9.38695 16.6522C8.19119 15.5262 7.06993 14.4154 5.90217 13.2492C5.64195 12.9893 5.64287 12.5674 5.90292 12.3074C6.16298 12.0473 6.58477 12.0464 6.84482 12.3064L10.145 15.6067Z"
-            fill={color==="#FFF"?'#000':'white'}/>
+            fill={color === "#FFF" ? '#000' : 'white'}/>
     </svg>
 }
 
-export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, setConfig: any}) {
+export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, setConfig: any }) {
 
     const [tables, setTables] = React.useState<any[]>([]);
     const [fields, setFields] = React.useState<any[]>([]);
     const {t} = useTranslation()
+
     async function getTables() {
         let tables = await bitable.base.getTableMetaList();
         setTables(tables);
-        if (tables && tables.length > 0){
+        if (tables && tables.length > 0) {
             let targetTableId = tables[0].id
-            let fields:any = []
+            let fields: any = []
             let targetFieldId = ""
             for (let table_info of tables) {
                 // console.log("表格",table_info)
                 let table = await bitable.base.getTableById(table_info.id);
                 let allFields = await table.getFieldMetaList();
-                let dateFields = allFields.filter(item=>item.type===5||item.type===1001||item.type===1002)
-                if (dateFields && dateFields.length > 0){
+                let dateFields = allFields.filter(item => item.type === 5 || item.type === 1001 || item.type === 1002)
+                if (dateFields && dateFields.length > 0) {
                     fields = dateFields
                     targetTableId = table_info.id
                     targetFieldId = dateFields[0].id
                     break
                 }
             }
-            if (fields.length >0){
+            if (fields.length > 0) {
                 setFields(fields)
                 setConfig({
                     ...config,
@@ -95,15 +101,16 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
             getDateFields(config.dateInfo.tableId);
         }
     }
-    React.useEffect(()=>{
+
+    React.useEffect(() => {
         getTables();
     }, [])
 
-    async function getDateFields(table_id:string){
+    async function getDateFields(table_id: string) {
         console.log("获取", table_id)
         let table = await bitable.base.getTableById(table_id);
         let allFields = await table.getFieldMetaList();
-        let fields = allFields.filter(item=>item.type===5||item.type===1001||item.type===1002)
+        let fields = allFields.filter(item => item.type === 5 || item.type === 1001 || item.type === 1002)
         setFields(fields)
         setConfig({
             ...config,
@@ -117,15 +124,15 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
 
     return (<div>
         <div className={'form-item'}>
-            <div className={'label'} style={{marginTop:8}}>{t("数据源")}</div>
+            <div className={'label'} style={{marginTop: 8}}>{t("数据源")}</div>
             <Select
-                onChange={async (v)=>{
+                onChange={async (v) => {
                     let fields = await getDateFields(v as string);
                     setConfig({
                         ...config,
                         dateInfo: {
                             tableId: v,
-                            fieldId: fields[0]? fields[0].id : "",
+                            fieldId: fields[0] ? fields[0].id : "",
                             dateType: 'earliest'
                         }
                     })
@@ -135,42 +142,42 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                     width: "100%"
                 }}
                 placeholder={t('请选择数据源')}
-                optionList={tables.map(item=>{
-                return {
-                    label: <div style={{
-                        display: "flex",
-                        alignItems: "center"
-                    }}>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                             xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M1.33203 2.66634C1.33203 1.92996 1.92898 1.33301 2.66536 1.33301H13.332C14.0684 1.33301 14.6654 1.92996 14.6654 2.66634V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333V2.66634ZM2.66536 2.66634V13.333H13.332V2.66634H2.66536Z"
-                                fill="var(--icon-color)"/>
-                            <path
-                                d="M8.33203 4.66634C7.96384 4.66634 7.66536 4.96482 7.66536 5.33301C7.66536 5.7012 7.96384 5.99967 8.33203 5.99967H11.332C11.7002 5.99967 11.9987 5.7012 11.9987 5.33301C11.9987 4.96482 11.7002 4.66634 11.332 4.66634H8.33203Z"
-                                fill="var(--icon-color)"/>
-                            <path
-                                d="M3.9987 5.33301C3.9987 4.96482 4.29718 4.66634 4.66536 4.66634H5.9987C6.36689 4.66634 6.66536 4.96482 6.66536 5.33301C6.66536 5.7012 6.36689 5.99967 5.9987 5.99967H4.66536C4.29717 5.99967 3.9987 5.7012 3.9987 5.33301Z"
-                                fill="var(--icon-color)"/>
-                            <path
-                                d="M8.33203 7.33301C7.96384 7.33301 7.66536 7.63148 7.66536 7.99967C7.66536 8.36786 7.96384 8.66634 8.33203 8.66634H11.332C11.7002 8.66634 11.9987 8.36786 11.9987 7.99967C11.9987 7.63148 11.7002 7.33301 11.332 7.33301H8.33203Z"
-                                fill="var(--icon-color)"/>
-                            <path
-                                d="M3.9987 7.99967C3.9987 7.63148 4.29718 7.33301 4.66536 7.33301H5.9987C6.36689 7.33301 6.66536 7.63148 6.66536 7.99967C6.66536 8.36786 6.36689 8.66634 5.9987 8.66634H4.66536C4.29717 8.66634 3.9987 8.36786 3.9987 7.99967Z"
-                                fill="var(--icon-color)"/>
-                            <path
-                                d="M8.33203 9.99967C7.96384 9.99967 7.66536 10.2982 7.66536 10.6663C7.66536 11.0345 7.96384 11.333 8.33203 11.333H11.332C11.7002 11.333 11.9987 11.0345 11.9987 10.6663C11.9987 10.2982 11.7002 9.99967 11.332 9.99967H8.33203Z"
-                                fill="var(--icon-color)"/>
-                            <path
-                                d="M3.9987 10.6663C3.9987 10.2982 4.29718 9.99967 4.66536 9.99967H5.9987C6.36689 9.99967 6.66536 10.2982 6.66536 10.6663C6.66536 11.0345 6.36689 11.333 5.9987 11.333H4.66536C4.29717 11.333 3.9987 11.0345 3.9987 10.6663Z"
-                                fill="var(--icon-color)"/>
-                        </svg>
-                        <div style={{marginLeft:2}}>
-                            {item.name}
-                        </div>
-                    </div>,
-                    value: item.id,
-                }
+                optionList={tables.map(item => {
+                    return {
+                        label: <div style={{
+                            display: "flex",
+                            alignItems: "center"
+                        }}>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M1.33203 2.66634C1.33203 1.92996 1.92898 1.33301 2.66536 1.33301H13.332C14.0684 1.33301 14.6654 1.92996 14.6654 2.66634V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333V2.66634ZM2.66536 2.66634V13.333H13.332V2.66634H2.66536Z"
+                                    fill="var(--icon-color)"/>
+                                <path
+                                    d="M8.33203 4.66634C7.96384 4.66634 7.66536 4.96482 7.66536 5.33301C7.66536 5.7012 7.96384 5.99967 8.33203 5.99967H11.332C11.7002 5.99967 11.9987 5.7012 11.9987 5.33301C11.9987 4.96482 11.7002 4.66634 11.332 4.66634H8.33203Z"
+                                    fill="var(--icon-color)"/>
+                                <path
+                                    d="M3.9987 5.33301C3.9987 4.96482 4.29718 4.66634 4.66536 4.66634H5.9987C6.36689 4.66634 6.66536 4.96482 6.66536 5.33301C6.66536 5.7012 6.36689 5.99967 5.9987 5.99967H4.66536C4.29717 5.99967 3.9987 5.7012 3.9987 5.33301Z"
+                                    fill="var(--icon-color)"/>
+                                <path
+                                    d="M8.33203 7.33301C7.96384 7.33301 7.66536 7.63148 7.66536 7.99967C7.66536 8.36786 7.96384 8.66634 8.33203 8.66634H11.332C11.7002 8.66634 11.9987 8.36786 11.9987 7.99967C11.9987 7.63148 11.7002 7.33301 11.332 7.33301H8.33203Z"
+                                    fill="var(--icon-color)"/>
+                                <path
+                                    d="M3.9987 7.99967C3.9987 7.63148 4.29718 7.33301 4.66536 7.33301H5.9987C6.36689 7.33301 6.66536 7.63148 6.66536 7.99967C6.66536 8.36786 6.36689 8.66634 5.9987 8.66634H4.66536C4.29717 8.66634 3.9987 8.36786 3.9987 7.99967Z"
+                                    fill="var(--icon-color)"/>
+                                <path
+                                    d="M8.33203 9.99967C7.96384 9.99967 7.66536 10.2982 7.66536 10.6663C7.66536 11.0345 7.96384 11.333 8.33203 11.333H11.332C11.7002 11.333 11.9987 11.0345 11.9987 10.6663C11.9987 10.2982 11.7002 9.99967 11.332 9.99967H8.33203Z"
+                                    fill="var(--icon-color)"/>
+                                <path
+                                    d="M3.9987 10.6663C3.9987 10.2982 4.29718 9.99967 4.66536 9.99967H5.9987C6.36689 9.99967 6.66536 10.2982 6.66536 10.6663C6.66536 11.0345 6.36689 11.333 5.9987 11.333H4.66536C4.29717 11.333 3.9987 11.0345 3.9987 10.6663Z"
+                                    fill="var(--icon-color)"/>
+                            </svg>
+                            <div style={{marginLeft: 2}}>
+                                {item.name}
+                            </div>
+                        </div>,
+                        value: item.id,
+                    }
                 })}/>
         </div>
         <div className={'form-item'}>
@@ -202,14 +209,14 @@ export function SelectRefDate({config, setConfig}:{config: IMileStoneConfig, set
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M4.66536 1.33301C5.03355 1.33301 5.33203 1.63148 5.33203 1.99967H10.6654C10.6654 1.63148 10.9638 1.33301 11.332 1.33301C11.7002 1.33301 11.9987 1.63148 11.9987 1.99967C12.2748 1.99967 12.8119 1.99967 13.3321 1.99967C14.0684 1.99967 14.6654 2.59663 14.6654 3.33301V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333L1.33203 3.33301C1.33203 2.59663 1.92896 1.99967 2.66534 1.99967C3.18554 1.99967 3.72257 1.99967 3.9987 1.99967C3.9987 1.63148 4.29717 1.33301 4.66536 1.33301ZM10.6654 3.33301H5.33203C5.33203 3.7012 5.03355 3.99967 4.66536 3.99967C4.29717 3.99967 3.9987 3.7012 3.9987 3.33301H2.66536V13.333H13.332V3.33301H11.9987C11.9987 3.7012 11.7002 3.99967 11.332 3.99967C10.9638 3.99967 10.6654 3.7012 10.6654 3.33301ZM5.9987 9.99967C5.9987 9.63148 5.70022 9.33301 5.33203 9.33301H4.66536C4.29717 9.33301 3.9987 9.63149 3.9987 9.99967V10.6663C3.9987 11.0345 4.29717 11.333 4.66536 11.333H5.33203C5.70022 11.333 5.9987 11.0345 5.9987 10.6663V9.99967ZM6.9987 6.66634C6.9987 6.29815 7.29718 5.99967 7.66536 5.99967H8.33203C8.70022 5.99967 8.9987 6.29815 8.9987 6.66634V7.33301C8.9987 7.7012 8.70022 7.99967 8.33203 7.99967H7.66536C7.29717 7.99967 6.9987 7.7012 6.9987 7.33301V6.66634ZM8.9987 9.99967C8.9987 9.63148 8.70022 9.33301 8.33203 9.33301H7.66536C7.29717 9.33301 6.9987 9.63149 6.9987 9.99967V10.6663C6.9987 11.0345 7.29718 11.333 7.66536 11.333H8.33203C8.70022 11.333 8.9987 11.0345 8.9987 10.6663V9.99967ZM9.9987 9.99967C9.9987 9.63148 10.2972 9.33301 10.6654 9.33301H11.332C11.7002 9.33301 11.9987 9.63149 11.9987 9.99967V10.6663C11.9987 11.0345 11.7002 11.333 11.332 11.333H10.6654C10.2972 11.333 9.9987 11.0345 9.9987 10.6663V9.99967ZM11.9987 6.66634C11.9987 6.29815 11.7002 5.99967 11.332 5.99967H10.6654C10.2972 5.99967 9.9987 6.29815 9.9987 6.66634V7.33301C9.9987 7.7012 10.2972 7.99967 10.6654 7.99967H11.332C11.7002 7.99967 11.9987 7.7012 11.9987 7.33301V6.66634Z"
-                                fill="var(--icon-color)"/>
-                        </svg>
-                        <div style={{marginLeft:2}}>
-                            {item.name}
-                        </div>
-                    </div>),
-                    value: item.id,
-                }
+                                    fill="var(--icon-color)"/>
+                            </svg>
+                            <div style={{marginLeft: 2}}>
+                                {item.name}
+                            </div>
+                        </div>),
+                        value: item.id,
+                    }
                 })}
             >
 
@@ -263,6 +270,9 @@ export default function App() {
         title: t("项目启动日期"),
         color: colors[0],
         dateType: 'date',
+        iconType: 'preset',
+        presetIconIndex: 1,
+        customIcon: "",
         dateInfo: {},
         target: Date.now(),
         format: 'YYYY-MM-DD',
@@ -300,38 +310,43 @@ export default function App() {
         }
     }
 
-    useEffect(()=>{
-        bitable.bridge.getLocale().then((lang)=>{
-          changeLang(lang as any)
+    useEffect(() => {
+        bitable.bridge.getLocale().then((lang) => {
+            changeLang(lang as any)
         })
 
-        function changeTheme(theme:string) {
+        function changeTheme(theme: string) {
             const body = document.querySelector('body');
-            if (theme === 'DARK'){
+            if (theme === 'DARK') {
                 // @ts-ignore
                 body.setAttribute('theme-mode', 'dark');
                 setTheme('DARK')
-            }else {
+            } else {
                 // @ts-ignore
                 body.removeAttribute('theme-mode');
                 setTheme('LIGHT')
             }
         }
 
-        bitable.bridge.getTheme().then((theme)=>{
+        bitable.bridge.getTheme().then((theme) => {
             console.log("theme", theme)
             changeTheme(theme)
         })
-        bitable.bridge.onThemeChange((res)=>{
+        bitable.bridge.onThemeChange((res) => {
             changeTheme(res.data.theme)
         })
 
-    },[])
+    }, [])
 
     const updateConfig = (res: any) => {
         const {customConfig} = res;
         if (customConfig) {
-            setConfig(customConfig as any)
+            setConfig((pre) => {
+                return {
+                    ...pre,
+                    ...customConfig
+                }
+            });
             setTimeout(() => {
                 // 预留3s给浏览器进行渲染，3s后告知服务端可以进行截图了
                 dashboard.setRendered();
@@ -362,8 +377,8 @@ export default function App() {
     const onClick = () => {
         // 保存配置
         console.log("保存配置", config)
-        let dataConditions:IDataCondition[]|null = []
-        if (config.dateType === 'ref'){
+        let dataConditions: IDataCondition[] | null = []
+        if (config.dateType === 'ref') {
             dataConditions = [{
                 tableId: config.dateInfo.tableId,
                 groups: [
@@ -388,7 +403,7 @@ export default function App() {
             <ConfigProvider locale={locale}>
 
                 <div className='content'>
-                    <MileStone config={config} isConfig={isConfig} />
+                    <MileStone config={config} isConfig={isConfig}/>
                 </div>
                 {
                     isConfig && (
@@ -473,7 +488,7 @@ export default function App() {
                                                 width: '100%',
                                             }}
                                             value={config.format}
-                                            onChange={(v)=>{
+                                            onChange={(v) => {
                                                 if (!v) return
                                                 setConfig({
                                                     ...config,
@@ -486,6 +501,9 @@ export default function App() {
                                             }))}></Select>
                                     </div>
                                 </div>
+                                <Divider margin={10}/>
+
+                                <SettingIcon config={config} setConfig={setConfig}/>
 
                                 <div className='form-item'>
                                     <div style={{
@@ -499,30 +517,31 @@ export default function App() {
                                         marginTop: 8
                                     }}>
                                         {
-                                            colors.map(item=>{
-                                                if (config.color === item){
-                                                    return  <div style={{
+                                            colors.map(item => {
+                                                if (config.color === item) {
+                                                    return <div style={{
                                                         marginRight: 7,
                                                     }}>
-                                                        <CheckIcon color={(item === "#1F2329" && theme === 'DARK')?"#FFF":item} />
+                                                        <CheckIcon
+                                                            color={(item === "#1F2329" && theme === 'DARK') ? "#FFF" : item}/>
                                                     </div>
                                                 }
                                                 return <div
-                                                    onClick={()=>{
+                                                    onClick={() => {
                                                         setConfig({
                                                             ...config,
                                                             color: item,
                                                         })
                                                     }}
                                                     style={{
-                                                    width: 18,
-                                                    height: 18,
-                                                    borderRadius: 4,
-                                                    background: (item === "#1F2329" && theme === 'DARK')?"#FFF":item,
+                                                        width: 18,
+                                                        height: 18,
+                                                        borderRadius: 4,
+                                                        background: (item === "#1F2329" && theme === 'DARK') ? "#FFF" : item,
                                                         padding: 2,
                                                         textAlign: 'center',
-                                                    marginRight: 7,
-                                                }}>
+                                                        marginRight: 7,
+                                                    }}>
                                                 </div>
                                             })
                                         }
@@ -549,50 +568,50 @@ export default function App() {
 }
 
 
-function MileStone({config, isConfig}:{
+function MileStone({config, isConfig}: {
     config: IMileStoneConfig,
     isConfig: boolean
 }) {
 
-    const {title, format, color,target} = config
+    const {title, format, color, target} = config
     const [time, setTime] = useState("")
     const [diffDay, setDiffDay] = useState(0)
     const {t} = useTranslation()
     const [theme, setTheme] = useState('LIGHT')
 
-    useEffect(()=>{
+    useEffect(() => {
         setDiffDay(Math.ceil((new Date(time).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     }, [time])
 
-    useEffect(()=>{
+    useEffect(() => {
 
-        function changeTheme(theme:string) {
+        function changeTheme(theme: string) {
             const body = document.querySelector('body');
-            if (theme === 'DARK'){
+            if (theme === 'DARK') {
                 // @ts-ignore
                 body.setAttribute('theme-mode', 'dark');
                 setTheme('DARK')
-            }else {
+            } else {
                 // @ts-ignore
                 body.removeAttribute('theme-mode');
                 setTheme('LIGHT')
             }
         }
 
-        bitable.bridge.getTheme().then((theme)=>{
+        bitable.bridge.getTheme().then((theme) => {
             console.log("theme", theme)
             changeTheme(theme)
         })
 
-        bitable.bridge.onThemeChange((r)=>{
+        bitable.bridge.onThemeChange((r) => {
             let theme = r.data.theme
             changeTheme(theme)
         })
-    },[])
+    }, [])
 
-    useEffect(()=>{
-        async function getTime(){
-            if(isConfig){
+    useEffect(() => {
+        async function getTime() {
+            if (isConfig) {
                 let tableId = config.dateInfo.tableId
                 let fieldId = config.dateInfo.fieldId
                 let dateType = config.dateInfo.dateType
@@ -607,117 +626,137 @@ function MileStone({config, isConfig}:{
                 })
                 console.log("预览数据", data)
                 let time = ""
-                if (dateType === 'earliest'){
-                    for (let i=1;i<data.length;i++){
-                        if (data[i][0].text){
+                if (dateType === 'earliest') {
+                    for (let i = 1; i < data.length; i++) {
+                        if (data[i][0].text) {
                             // @ts-ignore
                             time = data[i][0].text
                             break
                         }
                     }
-                }else {
+                } else {
                     // @ts-ignore
-                    time = data[data.length-1][0].text
+                    time = data[data.length - 1][0].text
                 }
                 console.log("预览数据的时间", time)
                 setTime(dayjs(time).format(format))
-            }else {
+            } else {
                 let data = await dashboard.getData()
                 let time = ""
-                if (config.dateInfo.dateType === 'earliest'){
-                    for (let i=1;i<data.length;i++){
-                        if (data[i][0].text){
+                if (config.dateInfo.dateType === 'earliest') {
+                    for (let i = 1; i < data.length; i++) {
+                        if (data[i][0].text) {
                             // @ts-ignore
                             time = data[i][0].text
                             break
                         }
                     }
-                }else {
+                } else {
                     // @ts-ignore
-                    time = data[data.length-1][0].text
+                    time = data[data.length - 1][0].text
                 }
                 setTime(dayjs(time).format(format))
             }
             await dashboard.setRendered()
         }
+
         function loadTimeInfo() {
-            if (config.dateType === "ref"){
+            if (config.dateType === "ref") {
                 getTime()
-            }else {
+            } else {
                 setTime(dayjs(config.target).format(config.format))
             }
         }
+
         loadTimeInfo()
 
-        let off = dashboard.onDataChange((r)=>{
+        let off = dashboard.onDataChange((r) => {
             console.log("data change", r)
-            if (config.dateType === "ref"){
+            if (config.dateType === "ref") {
                 let info = r.data
                 let time = info[1][0].text
                 console.log("data change,时间", time)
                 setTime(dayjs(time).format(format))
             }
         })
-        return ()=>{
+        return () => {
             off()
         }
-    },[config, isConfig])
+    }, [config, isConfig])
 
 
     return (
         <Spin spinning={!time}>
-        <div style={{width: '100%', textAlign: 'center', overflow: 'hidden'}}>
-            <div style={{
-                display:"flex",
-                justifyContent:"center"
-            }}>
-                <div>
-                    <svg style={{
-                        width: `${isConfig?"16vmin":"16vmax"}`,
-                        height: "auto"
-                    }} width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="0.5" width="90" height="90" rx="20" fill={(color === "#1F2329" && theme==="DARK")?"#FFF":color } fill-opacity="0.1"/>
-                        <path
-                            d="M67.8286 39.125C63.9929 39.7571 57.7357 39.9286 53.5786 32.0429C49.1214 23.5679 41.9214 23.3107 37.7107 24.0821C35.6643 24.4571 34.1321 26.1714 34.1321 27.8321V48.8964C35.3429 49.3571 36.6393 48.875 36.9714 48.8107C37.0571 48.7893 37.1321 48.7786 37.2286 48.7571C39.9071 48.1679 42.7357 47.8893 49.7429 51.2536C58.5286 55.4643 66.2214 47.7071 69.2 42.3071C69.4143 41.9321 70.1321 40.1429 70.1321 38.4286C69.0929 38.8571 67.8286 39.125 67.8286 39.125ZM31.5714 23H29.8571C29.3857 23 29 23.3857 29 23.8571V70.1429C29 70.6143 29.3857 71 29.8571 71H31.5714C32.0429 71 32.4286 70.6143 32.4286 70.1429V23.8571C32.4286 23.3857 32.0429 23 31.5714 23Z"
-                            fill={(color === "#1F2329" && theme==="DARK")?"#FFF":color}/>
-                    </svg>
-                </div>
-                <Tooltip trigger={'hover'} position={'bottom'}
-                         content={diffDay > 0 ? t(`距离目标日期{{count}}天`, {count: diffDay}) : t(`已超过设定日期`)}>
-                    <div style={{
-                        marginLeft: `${isConfig?"2vmin":"2vmax"}`,
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
+            <div style={{width: '100%', textAlign: 'center', overflow: 'hidden'}}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "center"
+                }}>
+                    <div style={{position:"relative",
+                        width: `${isConfig ? "16vmin" : "16vmax"}`,
+                        height: `${isConfig ? "16vmin" : "16vmax"}`,
                     }}>
+                        {/*<svg style={{*/}
+                        {/*    width: `${isConfig ? "16vmin" : "16vmax"}`,*/}
+                        {/*    height: "auto"*/}
+                        {/*}} width="91" height="90" viewBox="0 0 91 90" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*    <rect x="0.5" width="90" height="90" rx="20"*/}
+                        {/*          fill={(color === "#1F2329" && theme === "DARK") ? "#FFF" : color} fill-opacity="0.1"/>*/}
+                        {/*    <path*/}
+                        {/*        d="M67.8286 39.125C63.9929 39.7571 57.7357 39.9286 53.5786 32.0429C49.1214 23.5679 41.9214 23.3107 37.7107 24.0821C35.6643 24.4571 34.1321 26.1714 34.1321 27.8321V48.8964C35.3429 49.3571 36.6393 48.875 36.9714 48.8107C37.0571 48.7893 37.1321 48.7786 37.2286 48.7571C39.9071 48.1679 42.7357 47.8893 49.7429 51.2536C58.5286 55.4643 66.2214 47.7071 69.2 42.3071C69.4143 41.9321 70.1321 40.1429 70.1321 38.4286C69.0929 38.8571 67.8286 39.125 67.8286 39.125ZM31.5714 23H29.8571C29.3857 23 29 23.3857 29 23.8571V70.1429C29 70.6143 29.3857 71 29.8571 71H31.5714C32.0429 71 32.4286 70.6143 32.4286 70.1429V23.8571C32.4286 23.3857 32.0429 23 31.5714 23Z"*/}
+                        {/*        fill={(color === "#1F2329" && theme === "DARK") ? "#FFF" : color}/>*/}
+                        {/*</svg>*/}
                         <div style={{
-                            fontSize: `${isConfig?"8.4vmin":"8.4vmax"}`,
-                            color: "var(--title-color)",
-                            fontWeight: 600,
-                            alignSelf: "flex-start",
-                            marginBottom: `${isConfig?"1vmin":"1vmax"}`
+                            position: "absolute",
+                            left:0,
+                            top:0,
+                            borderRadius: "25%",
+                            width: `100%`,
+                            height: `100%`,
+                            background: (color === "#1F2329" && theme === "DARK") ? "#FFF" : color,
+                            opacity: 0.1
                         }}>
-                            {time}
                         </div>
-                        <div style={{
-                            fontSize: `${isConfig?"3vmin":"3vmax"}`,
-                            color: "var(--sub-title-color)",
-                            marginBottom: `${isConfig?"2vmin":"1vmax"}`,
-                            textAlign: "left",
-                            fontWeight: 400,
-                            // 不换号，超过省略号
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            maxWidth: `${isConfig?"50vmin":"50vmax"}`
-                        }}>
-                            {title}
-                        </div>
+                        {
+                            IconsMap[config.presetIconIndex]((color === "#1F2329" && theme === "DARK") ? "#FFF" : color, isConfig ? "11vmin" : "11vmax")
+                        }
                     </div>
-                </Tooltip>
+                    <Tooltip trigger={'hover'} position={'bottom'}
+                             content={diffDay > 0 ? t(`距离目标日期{{count}}天`, {count: diffDay}) : t(`已超过设定日期`)}>
+                        <div style={{
+                            marginLeft: `${isConfig ? "2vmin" : "2vmax"}`,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                        }}>
+                            <div style={{
+                                fontSize: `${isConfig ? "8.4vmin" : "8.4vmax"}`,
+                                color: "var(--title-color)",
+                                fontWeight: 600,
+                                alignSelf: "flex-start",
+                                marginBottom: `${isConfig ? "1vmin" : "1vmax"}`
+                            }}>
+                                {time}
+                            </div>
+                            <div style={{
+                                fontSize: `${isConfig ? "3vmin" : "3vmax"}`,
+                                color: "var(--sub-title-color)",
+                                marginBottom: `${isConfig ? "2vmin" : "1vmax"}`,
+                                textAlign: "left",
+                                fontWeight: 400,
+                                // 不换号，超过省略号
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: `${isConfig ? "50vmin" : "50vmax"}`
+                            }}>
+                                {title}
+                            </div>
+                        </div>
+                    </Tooltip>
 
+                </div>
             </div>
-        </div>
         </Spin>
     );
 
