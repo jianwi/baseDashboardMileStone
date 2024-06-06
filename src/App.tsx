@@ -728,6 +728,7 @@ function MileStone({config, isConfig}: {
                             }}>
                             </div>
                             {
+                                // @ts-ignore
                                 IconsMap[config.presetIconIndex]((color === "#1F2329" && theme === "DARK") ? "#FFF" : color, isConfig ? "11vmin" : "11vmax")
                             }
                         </>}

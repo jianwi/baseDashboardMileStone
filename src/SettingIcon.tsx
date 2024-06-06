@@ -47,8 +47,10 @@ export default function ({config, setConfig}) {
     </div>
 }
 
+// @ts-ignore
 function Custom({config, setConfig}) {
 
+    // @ts-ignore
     function upload({ file, onProgress, onError, onSuccess }) {
         console.log("file", file)
         // 获取文件内容
@@ -75,7 +77,10 @@ function Custom({config, setConfig}) {
         <Upload
             customRequest={upload}
             limit={1}
-            style={{"--semi-color-tertiary-light-default": "transparent", border: "none"}}
+            style={
+                // @ts-ignore
+                {"--semi-color-tertiary-light-default": "transparent", border: "none"}
+            }
             border={null}
             draggable={true}
             dragMainText={<div style={{padding: "30px 0", background: "transparent"}}>拖拽svg到这里上传，或者<span
@@ -91,12 +96,17 @@ function Custom({config, setConfig}) {
 
 }
 
+// @ts-ignore
+
 function Preset({config, setConfig}) {
     return <div className={'iconWrap'}>
         {
+            // @ts-ignore
             (new Array(24).fill()).map((item, index) => {
+                // @ts-ignore
                 return IconsMap[index + 1] && <div
                     onClick={() => {
+                        // @ts-ignore
                         setConfig((pre) => {
                             return {
                                 ...pre,
@@ -105,7 +115,12 @@ function Preset({config, setConfig}) {
                         })
                     }}
                     className={`icon ${config.presetIconIndex == index + 1 ? 'active' : ""}`}
-                >{IconsMap[index + 1]("#000")}</div>
+                >
+                    {
+                        // @ts-ignore
+                        IconsMap[index + 1]("#000")
+                    }
+                </div>
             })
         }
     </div>
