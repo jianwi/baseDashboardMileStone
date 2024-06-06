@@ -18,6 +18,11 @@ const config = [
     ['距离目标日期{{count}}天',"距离目标日期{{count}}天","{{count}} days from target date","目標日から{{count}}日"],
     ['已超过设定日期',"已超过设定日期","Exceeded the set date","設定日を超過しました"],
     ['项目启动日期',"项目启动日期","Project Launch Date","プロジェクトの開始日"],
+    ['选择文件',"选择文件","Select File","ファイルを選択"],
+    ['拖拽svg到这里上传，或者',"拖拽svg到这里上传，或者","Drag and drop svg here to upload, or","ここにsvgをドラッグしてアップロードするか、または"],
+    ['自定义图标',"自定义图标","Custom Icon","カスタムアイコン"],
+    ['预设图标',"预设图标","Preset Icon","プリセットアイコン"],
+    ['图标',"图标","Icon","アイコン"]
 ]
 
 
