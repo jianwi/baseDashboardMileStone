@@ -316,6 +316,9 @@ export default function App() {
         })
 
         function changeTheme(theme: string) {
+            if (!isConfig){
+                return
+            }
             const body = document.querySelector('body');
             if (theme === 'DARK') {
                 // @ts-ignore
@@ -601,15 +604,24 @@ function MileStone({config, isConfig}: {
             }
         }
 
-        bitable.bridge.getTheme().then((theme) => {
-            console.log("theme", theme)
-            changeTheme(theme)
+        dashboard.getTheme().then((theme)=>{
+            console.log("them 变化", theme)
+            changeTheme(theme.theme);
         })
+        dashboard.onThemeChange(res => {
+            console.log("them 变化", res)
+            changeTheme(res.data.theme);
+        });
 
-        bitable.bridge.onThemeChange((r) => {
-            let theme = r.data.theme
-            changeTheme(theme)
-        })
+        // bitable.bridge.getTheme().then((theme) => {
+        //     console.log("theme", theme)
+        //     changeTheme(theme)
+        // })
+        //
+        // bitable.bridge.onThemeChange((r) => {
+        //     let theme = r.data.theme
+        //     changeTheme(theme)
+        // })
     }, [])
 
     useEffect(() => {
