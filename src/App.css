@@ -37,7 +37,7 @@ body{
     padding: 20px;
     box-sizing: border-box;
     max-height: 100vh;
-    overflow: scroll;
+    /*overflow: scroll;*/
 }
 
 .form {
@@ -197,4 +197,8 @@ body[theme-mode="dark"] {
 }
 .semi-upload-drag-area{
     border: none !important;
+}
+::-webkit-scrollbar {
+    width: 12px; /* 宽度 */
+    height: 12px; /* 高度 */
 }
