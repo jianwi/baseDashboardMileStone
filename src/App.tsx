@@ -331,13 +331,13 @@ export default function App() {
             }
         }
 
-        bitable.bridge.getTheme().then((theme) => {
-            console.log("theme", theme)
-            changeTheme(theme)
-        })
-        bitable.bridge.onThemeChange((res) => {
-            changeTheme(res.data.theme)
-        })
+        // bitable.bridge.getTheme().then((theme) => {
+        //     console.log("theme", theme)
+        //     changeTheme(theme)
+        // })
+        // bitable.bridge.onThemeChange((res) => {
+        //     changeTheme(res.data.theme)
+        // })
 
     }, [])
 
