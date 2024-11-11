@@ -315,7 +315,7 @@ export default function App() {
             changeLang(lang as any)
         })
 
-        function changeTheme(theme: string) {
+        function changeTheme({theme,bgColor}: { theme: string, bgColor: string}) {
             if (!isConfig){
                 return
             }
@@ -329,7 +329,18 @@ export default function App() {
                 body.removeAttribute('theme-mode');
                 setTheme('LIGHT')
             }
+            // @ts-ignore
+            body.style.setProperty('--bg-color', bgColor);
         }
+
+        dashboard.getTheme().then((theme)=>{
+            // @ts-ignore
+            changeTheme({theme: theme.theme, bgColor: theme.chartBgColor});
+        })
+        dashboard.onThemeChange(res => {
+            // console.log("them 变化", res)
+            changeTheme({theme: res.data.theme, bgColor: res.data.chartBgColor});
+        });
 
         // bitable.bridge.getTheme().then((theme) => {
         //     console.log("theme", theme)
@@ -611,9 +622,9 @@ function MileStone({config, isConfig}: {
         }
 
         dashboard.getTheme().then((theme)=>{
-            console.log("them 变化", theme)
+            console.log("them 变化111", theme, theme.theme)
             // @ts-ignore
-            changeTheme({them: theme.theme, bgColor: theme.chartBgColor});
+            changeTheme({theme: theme.theme, bgColor: theme.chartBgColor});
         })
         dashboard.onThemeChange(res => {
             console.log("them 变化", res)
