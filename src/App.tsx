@@ -591,26 +591,33 @@ function MileStone({config, isConfig}: {
 
     useEffect(() => {
 
-        function changeTheme(theme: string) {
+        function changeTheme({theme,bgColor}: { theme: string, bgColor: string}) {
             const body = document.querySelector('body');
             if (theme === 'DARK') {
                 // @ts-ignore
                 body.setAttribute('theme-mode', 'dark');
                 setTheme('DARK')
+
             } else {
                 // @ts-ignore
                 body.removeAttribute('theme-mode');
                 setTheme('LIGHT')
             }
+
+            // 设置 style 的变量
+            console.log("bgColor", bgColor)
+            // @ts-ignore
+            body.style.setProperty('--bg-color', bgColor);
         }
 
         dashboard.getTheme().then((theme)=>{
             console.log("them 变化", theme)
-            changeTheme(theme.theme);
+            // @ts-ignore
+            changeTheme({them: theme.theme, bgColor: theme.chartBgColor});
         })
         dashboard.onThemeChange(res => {
             console.log("them 变化", res)
-            changeTheme(res.data.theme);
+            changeTheme({theme: res.data.theme, bgColor: res.data.chartBgColor});
         });
 
         // bitable.bridge.getTheme().then((theme) => {

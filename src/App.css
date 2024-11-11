@@ -1,7 +1,6 @@
 @import "reset-css";
 body{
-    background: transparent !important;
-    background-image: none !important;
+    background: var(--bg-color);
 }
 
 .ant-btn-primary {
