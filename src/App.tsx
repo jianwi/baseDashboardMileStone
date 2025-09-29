@@ -1,18 +1,19 @@
 import './App.css';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     bitable,
     dashboard,
     DashboardState,
     DATA_SOURCE_SORT_TYPE,
+    IData,
     IDataCondition,
     ORDER,
     Rollup
 } from "@lark-base-open/js-sdk";
-import {Button, ConfigProvider, DatePicker, Divider, Icon, Input, Select, Spin, Tooltip} from '@douyinfe/semi-ui';
+import { Button, ConfigProvider, DatePicker, Divider, Icon, Input, Select, Spin, Tooltip } from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
 import "./i18n/index"
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import zhCN from '@douyinfe/semi-ui/lib/es/locale/source/zh_CN';
 import enUS from '@douyinfe/semi-ui/lib/es/locale/source/en_US';
@@ -22,7 +23,7 @@ import classNames from 'classnames'
 import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
 import SettingIcon from "./SettingIcon";
-import {IconsMap} from "./iconMap";
+import { IconsMap } from "./iconMap";
 
 interface IMileStoneConfig {
     title: string;
@@ -30,7 +31,11 @@ interface IMileStoneConfig {
     iconType: "preset" | "custom"; // 自定义 预设
     presetIconIndex: number,
     customIcon: string;
-    dateInfo: any;
+    dateInfo: {
+        tableId: string;
+        fieldId: string;
+        dateType: 'earliest' | 'latest';
+    };
     target: number;
     format: string;
     color: string;
@@ -43,26 +48,26 @@ const colors = ["#1F2329", "#1456F0", "#7A35F0", "#35BD4B", "#2DBEAB", "#FFC60A"
 
 dayjs.locale('zh-cn');
 
-function CheckIcon({color}: { color: string }) {
+function CheckIcon({ color }: { color: string }) {
     return <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
+        xmlns="http://www.w3.org/2000/svg">
         <path
             d="M6 1C3.23858 1 1 3.23858 1 6V18C1 20.7614 3.23858 23 6 23H18C20.7614 23 23 20.7614 23 18V6C23 3.23858 20.7614 1 18 1H6Z"
-            stroke={color} stroke-width="2"/>
+            stroke={color} stroke-width="2" />
         <path
             d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"
-            fill={color}/>
+            fill={color} />
         <path
             d="M10.145 15.6067L17.221 8.5308C17.4785 8.27328 17.8963 8.27503 18.1538 8.53257C18.4145 8.79326 18.4119 9.218 18.1468 9.4741C15.8213 11.7202 15.3281 12.1957 10.7628 16.6346C10.3818 17.005 9.7738 17.0164 9.38695 16.6522C8.19119 15.5262 7.06993 14.4154 5.90217 13.2492C5.64195 12.9893 5.64287 12.5674 5.90292 12.3074C6.16298 12.0473 6.58477 12.0464 6.84482 12.3064L10.145 15.6067Z"
-            fill={color === "#FFF" ? '#000' : 'white'}/>
+            fill={color === "#FFF" ? '#000' : 'white'} />
     </svg>
 }
 
-export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, setConfig: any }) {
+export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig, setConfig: any }) {
 
     const [tables, setTables] = React.useState<any[]>([]);
     const [fields, setFields] = React.useState<any[]>([]);
-    const {t} = useTranslation()
+    const { t } = useTranslation()
 
     async function getTables() {
         let tables = await bitable.base.getTableMetaList();
@@ -124,7 +129,7 @@ export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, s
 
     return (<div>
         <div className={'form-item'}>
-            <div className={'label'} style={{marginTop: 8}}>{t("数据源")}</div>
+            <div className={'label'} style={{ marginTop: 8 }}>{t("数据源")}</div>
             <Select
                 onChange={async (v) => {
                     let fields = await getDateFields(v as string);
@@ -149,36 +154,36 @@ export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, s
                             alignItems: "center"
                         }}>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M1.33203 2.66634C1.33203 1.92996 1.92898 1.33301 2.66536 1.33301H13.332C14.0684 1.33301 14.6654 1.92996 14.6654 2.66634V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333V2.66634ZM2.66536 2.66634V13.333H13.332V2.66634H2.66536Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                                 <path
                                     d="M8.33203 4.66634C7.96384 4.66634 7.66536 4.96482 7.66536 5.33301C7.66536 5.7012 7.96384 5.99967 8.33203 5.99967H11.332C11.7002 5.99967 11.9987 5.7012 11.9987 5.33301C11.9987 4.96482 11.7002 4.66634 11.332 4.66634H8.33203Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                                 <path
                                     d="M3.9987 5.33301C3.9987 4.96482 4.29718 4.66634 4.66536 4.66634H5.9987C6.36689 4.66634 6.66536 4.96482 6.66536 5.33301C6.66536 5.7012 6.36689 5.99967 5.9987 5.99967H4.66536C4.29717 5.99967 3.9987 5.7012 3.9987 5.33301Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                                 <path
                                     d="M8.33203 7.33301C7.96384 7.33301 7.66536 7.63148 7.66536 7.99967C7.66536 8.36786 7.96384 8.66634 8.33203 8.66634H11.332C11.7002 8.66634 11.9987 8.36786 11.9987 7.99967C11.9987 7.63148 11.7002 7.33301 11.332 7.33301H8.33203Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                                 <path
                                     d="M3.9987 7.99967C3.9987 7.63148 4.29718 7.33301 4.66536 7.33301H5.9987C6.36689 7.33301 6.66536 7.63148 6.66536 7.99967C6.66536 8.36786 6.36689 8.66634 5.9987 8.66634H4.66536C4.29717 8.66634 3.9987 8.36786 3.9987 7.99967Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                                 <path
                                     d="M8.33203 9.99967C7.96384 9.99967 7.66536 10.2982 7.66536 10.6663C7.66536 11.0345 7.96384 11.333 8.33203 11.333H11.332C11.7002 11.333 11.9987 11.0345 11.9987 10.6663C11.9987 10.2982 11.7002 9.99967 11.332 9.99967H8.33203Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                                 <path
                                     d="M3.9987 10.6663C3.9987 10.2982 4.29718 9.99967 4.66536 9.99967H5.9987C6.36689 9.99967 6.66536 10.2982 6.66536 10.6663C6.66536 11.0345 6.36689 11.333 5.9987 11.333H4.66536C4.29717 11.333 3.9987 11.0345 3.9987 10.6663Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                             </svg>
-                            <div style={{marginLeft: 2}}>
+                            <div style={{ marginLeft: 2 }}>
                                 {item.name}
                             </div>
                         </div>,
                         value: item.id,
                     }
-                })}/>
+                })} />
         </div>
         <div className={'form-item'}>
             <div className={'label'}>
@@ -206,12 +211,12 @@ export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, s
                             alignItems: 'center'
                         }}>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
+                                xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M4.66536 1.33301C5.03355 1.33301 5.33203 1.63148 5.33203 1.99967H10.6654C10.6654 1.63148 10.9638 1.33301 11.332 1.33301C11.7002 1.33301 11.9987 1.63148 11.9987 1.99967C12.2748 1.99967 12.8119 1.99967 13.3321 1.99967C14.0684 1.99967 14.6654 2.59663 14.6654 3.33301V13.333C14.6654 14.0694 14.0684 14.6663 13.332 14.6663H2.66536C1.92899 14.6663 1.33203 14.0694 1.33203 13.333L1.33203 3.33301C1.33203 2.59663 1.92896 1.99967 2.66534 1.99967C3.18554 1.99967 3.72257 1.99967 3.9987 1.99967C3.9987 1.63148 4.29717 1.33301 4.66536 1.33301ZM10.6654 3.33301H5.33203C5.33203 3.7012 5.03355 3.99967 4.66536 3.99967C4.29717 3.99967 3.9987 3.7012 3.9987 3.33301H2.66536V13.333H13.332V3.33301H11.9987C11.9987 3.7012 11.7002 3.99967 11.332 3.99967C10.9638 3.99967 10.6654 3.7012 10.6654 3.33301ZM5.9987 9.99967C5.9987 9.63148 5.70022 9.33301 5.33203 9.33301H4.66536C4.29717 9.33301 3.9987 9.63149 3.9987 9.99967V10.6663C3.9987 11.0345 4.29717 11.333 4.66536 11.333H5.33203C5.70022 11.333 5.9987 11.0345 5.9987 10.6663V9.99967ZM6.9987 6.66634C6.9987 6.29815 7.29718 5.99967 7.66536 5.99967H8.33203C8.70022 5.99967 8.9987 6.29815 8.9987 6.66634V7.33301C8.9987 7.7012 8.70022 7.99967 8.33203 7.99967H7.66536C7.29717 7.99967 6.9987 7.7012 6.9987 7.33301V6.66634ZM8.9987 9.99967C8.9987 9.63148 8.70022 9.33301 8.33203 9.33301H7.66536C7.29717 9.33301 6.9987 9.63149 6.9987 9.99967V10.6663C6.9987 11.0345 7.29718 11.333 7.66536 11.333H8.33203C8.70022 11.333 8.9987 11.0345 8.9987 10.6663V9.99967ZM9.9987 9.99967C9.9987 9.63148 10.2972 9.33301 10.6654 9.33301H11.332C11.7002 9.33301 11.9987 9.63149 11.9987 9.99967V10.6663C11.9987 11.0345 11.7002 11.333 11.332 11.333H10.6654C10.2972 11.333 9.9987 11.0345 9.9987 10.6663V9.99967ZM11.9987 6.66634C11.9987 6.29815 11.7002 5.99967 11.332 5.99967H10.6654C10.2972 5.99967 9.9987 6.29815 9.9987 6.66634V7.33301C9.9987 7.7012 10.2972 7.99967 10.6654 7.99967H11.332C11.7002 7.99967 11.9987 7.7012 11.9987 7.33301V6.66634Z"
-                                    fill="var(--icon-color)"/>
+                                    fill="var(--icon-color)" />
                             </svg>
-                            <div style={{marginLeft: 2}}>
+                            <div style={{ marginLeft: 2 }}>
                                 {item.name}
                             </div>
                         </div>),
@@ -238,7 +243,7 @@ export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, s
                         "tab-item": true,
                         "active": (!config.dateInfo || config.dateInfo.dateType === 'earliest')
                     })}>
-                    {t('最早日期')}
+                    {t('最小日期')}
                 </div>
                 <div
                     onClick={() => {
@@ -254,7 +259,7 @@ export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, s
                         "tab-item": true,
                         "active": (config.dateInfo && config.dateInfo.dateType === 'latest')
                     })}>
-                    {t('最晚日期')}
+                    {t('最大日期')}
                 </div>
             </div>
         </div>
@@ -265,7 +270,7 @@ export function SelectRefDate({config, setConfig}: { config: IMileStoneConfig, s
 
 export default function App() {
     const [locale, setLocale] = useState(zhCN);
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [config, setConfig] = useState<IMileStoneConfig>({
         title: t("项目启动日期"),
         color: colors[0],
@@ -273,7 +278,11 @@ export default function App() {
         iconType: 'preset',
         presetIconIndex: 1,
         customIcon: "",
-        dateInfo: {},
+        dateInfo: {
+            tableId: '',
+            fieldId: '',
+            dateType: 'earliest'
+        },
         target: Date.now(),
         format: 'YYYY-MM-DD',
     })
@@ -284,7 +293,7 @@ export default function App() {
     const isConfig = dashboard.state === DashboardState.Config || isCreate;
 
     const changeDateType = (type: 'date' | 'ref') => {
-        let dateInfo = {}
+        let dateInfo: any = {}
         if (type === 'date') {
         }
         if (type === 'ref') {
@@ -315,8 +324,8 @@ export default function App() {
             changeLang(lang as any)
         })
 
-        function changeTheme({theme,bgColor}: { theme: string, bgColor: string}) {
-            if (!isConfig){
+        function changeTheme({ theme, bgColor }: { theme: string, bgColor: string }) {
+            if (!isConfig) {
                 return
             }
             const body = document.querySelector('body');
@@ -333,13 +342,13 @@ export default function App() {
             body.style.setProperty('--bg-color', bgColor);
         }
 
-        dashboard.getTheme().then((theme)=>{
+        dashboard.getTheme().then((theme) => {
             // @ts-ignore
-            changeTheme({theme: theme.theme, bgColor: theme.chartBgColor});
+            changeTheme({ theme: theme.theme, bgColor: theme.chartBgColor });
         })
         dashboard.onThemeChange(res => {
             // console.log("them 变化", res)
-            changeTheme({theme: res.data.theme, bgColor: res.data.chartBgColor});
+            changeTheme({ theme: res.data.theme, bgColor: res.data.chartBgColor });
         });
 
         // bitable.bridge.getTheme().then((theme) => {
@@ -353,7 +362,7 @@ export default function App() {
     }, [])
 
     const updateConfig = (res: any) => {
-        const {customConfig} = res;
+        const { customConfig } = res;
         if (customConfig) {
             setConfig((pre) => {
                 return {
@@ -417,7 +426,7 @@ export default function App() {
             <ConfigProvider locale={locale}>
 
                 <div className='content'>
-                    <MileStone config={config} isConfig={isConfig}/>
+                    <MileStone config={config} isConfig={isConfig} />
                 </div>
                 {
                     isConfig && (
@@ -432,7 +441,7 @@ export default function App() {
                                                 ...config,
                                                 title: v
                                             })
-                                        }}/>
+                                        }} />
                                 </div>
                                 <div className='form-item'>
                                     <div className={'label'}>{t('日期')}</div>
@@ -467,7 +476,7 @@ export default function App() {
                                                     <DatePicker
                                                         showClear={false}
                                                         format={"yyyy/MM/dd"}
-                                                        style={{width: '100%', marginTop: 8}}
+                                                        style={{ width: '100%', marginTop: 8 }}
                                                         value={new Date(config.target)}
                                                         onChange={(date) => {
                                                             setConfig({
@@ -482,7 +491,7 @@ export default function App() {
 
                                         {
                                             config.dateType === 'ref' && (
-                                                <SelectRefDate config={config} setConfig={setConfig}/>
+                                                <SelectRefDate config={config} setConfig={setConfig} />
                                             )
                                         }
                                     </div>
@@ -515,9 +524,9 @@ export default function App() {
                                             }))}></Select>
                                     </div>
                                 </div>
-                                <Divider margin={10}/>
+                                <Divider margin={10} />
 
-                                <SettingIcon theme={theme} config={config} setConfig={setConfig}/>
+                                <SettingIcon theme={theme} config={config} setConfig={setConfig} />
 
                                 {
                                     config.iconType === 'preset' && (<div className='form-item'>
@@ -538,7 +547,7 @@ export default function App() {
                                                             marginRight: 7,
                                                         }}>
                                                             <CheckIcon
-                                                                color={(item === "#1F2329" && theme === 'DARK') ? "#FFF" : item}/>
+                                                                color={(item === "#1F2329" && theme === 'DARK') ? "#FFF" : item} />
                                                         </div>
                                                     }
                                                     return <div
@@ -585,15 +594,15 @@ export default function App() {
 }
 
 
-function MileStone({config, isConfig}: {
+function MileStone({ config, isConfig }: {
     config: IMileStoneConfig,
     isConfig: boolean
 }) {
 
-    const {title, format, color, target} = config
+    const { title, format, color, target } = config
     const [time, setTime] = useState("")
     const [diffDay, setDiffDay] = useState(0)
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const [theme, setTheme] = useState('LIGHT')
 
     useEffect(() => {
@@ -602,7 +611,7 @@ function MileStone({config, isConfig}: {
 
     useEffect(() => {
 
-        function changeTheme({theme,bgColor}: { theme: string, bgColor: string}) {
+        function changeTheme({ theme, bgColor }: { theme: string, bgColor: string }) {
             const body = document.querySelector('body');
             if (theme === 'DARK') {
                 // @ts-ignore
@@ -621,14 +630,14 @@ function MileStone({config, isConfig}: {
             body.style.setProperty('--bg-color', bgColor);
         }
 
-        dashboard.getTheme().then((theme)=>{
+        dashboard.getTheme().then((theme) => {
             console.log("them 变化111", theme, theme.theme)
             // @ts-ignore
-            changeTheme({theme: theme.theme, bgColor: theme.chartBgColor});
+            changeTheme({ theme: theme.theme, bgColor: theme.chartBgColor });
         })
         dashboard.onThemeChange(res => {
             console.log("them 变化", res)
-            changeTheme({theme: res.data.theme, bgColor: res.data.chartBgColor});
+            changeTheme({ theme: res.data.theme, bgColor: res.data.chartBgColor });
         });
 
         // bitable.bridge.getTheme().then((theme) => {
@@ -643,53 +652,62 @@ function MileStone({config, isConfig}: {
     }, [])
 
     useEffect(() => {
+        const getMaxMinTimeFromData = (data: IData) => {
+            let maxDate = data[1][0].value as number, minDate = data[1][0].value as number;
+            let maxTimeFormat = "";
+            let minTimeFormat = "";
+
+            for (let i = 1; i < data.length; i++) {
+                const d = data[i][0].value as number;
+                if (d) {
+                    maxDate = Math.max(maxDate, d)
+                    minDate = Math.min(minDate, d)
+                }
+            }
+
+            minTimeFormat = dayjs(minDate).format(format)
+            maxTimeFormat = dayjs(maxDate).format(format)
+            return {
+                maxTimeFormat,
+                minTimeFormat,
+                maxDate,
+                minDate,
+            }
+        }
+
         async function getTime() {
+            let data: IData = [];
+            let tableId = config.dateInfo.tableId
+            let fieldId = config.dateInfo.fieldId
+            let dateType = config.dateInfo.dateType;
+
+
             if (isConfig) {
-                let tableId = config.dateInfo.tableId
-                let fieldId = config.dateInfo.fieldId
-                let dateType = config.dateInfo.dateType
-                let type = dateType === 'earliest' ? Rollup.MIN : Rollup.MAX
-                let data = await dashboard.getPreviewData({
+                data = await dashboard.getPreviewData({
                     tableId: tableId,
                     groups: [
                         {
-                            fieldId: fieldId
+                            fieldId: fieldId,
                         }
                     ],
-                })
-                console.log("预览数据", data)
-                let time = ""
-                if (dateType === 'earliest') {
-                    for (let i = 1; i < data.length; i++) {
-                        if (data[i][0].text) {
-                            // @ts-ignore
-                            time = data[i][0].text
-                            break
-                        }
-                    }
-                } else {
-                    // @ts-ignore
-                    time = data[data.length - 1][0].text
-                }
-                console.log("预览数据的时间", time)
-                setTime(dayjs(time).format(format))
+                });
+                console.log("预览数据", data);
+
             } else {
-                let data = await dashboard.getData()
-                let time = ""
-                if (config.dateInfo.dateType === 'earliest') {
-                    for (let i = 1; i < data.length; i++) {
-                        if (data[i][0].text) {
-                            // @ts-ignore
-                            time = data[i][0].text
-                            break
-                        }
-                    }
-                } else {
-                    // @ts-ignore
-                    time = data[data.length - 1][0].text
-                }
-                setTime(dayjs(time).format(format))
+                data = await dashboard.getData()
+                console.log('getData', data)
             }
+            const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(data)
+
+            let time = ''
+
+            if (dateType === 'earliest') {
+                time = minTimeFormat
+            } else {
+                time = maxTimeFormat
+            }
+            console.log("预览数据的时间", time)
+            setTime(dayjs(time).format(format))
             await dashboard.setRendered()
         }
 
@@ -707,7 +725,8 @@ function MileStone({config, isConfig}: {
             console.log("data change", r)
             if (config.dateType === "ref") {
                 let info = r.data
-                let time = info[1][0].text
+                const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(info)
+                const time = config.dateInfo.dateType === 'earliest' ? minTimeFormat : maxTimeFormat
                 console.log("data change,时间", time)
                 setTime(dayjs(time).format(format))
             }
@@ -720,19 +739,20 @@ function MileStone({config, isConfig}: {
 
     return (
         <Spin spinning={!time}>
-            <div style={{width: '100%', textAlign: 'center', overflow: 'hidden'}}>
+            <div style={{ width: '100%', textAlign: 'center', overflow: 'hidden' }}>
                 <div style={{
                     display: "flex",
                     justifyContent: "center"
                 }}>
-                    <div style={{position:"relative",
+                    <div style={{
+                        position: "relative",
                         width: `${isConfig ? "16vmin" : "16vmax"}`,
                         height: `${isConfig ? "16vmin" : "16vmax"}`,
-                        display:"flex",
-                        alignItems:"center",
-                        justifyContent:"center"
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
                     }}>
-                        { config.iconType === "custom" && config.customIcon && <img style={{width:"93%"}} src={URL.createObjectURL(new Blob([config.customIcon], { type: 'image/svg+xml' }))}/> }
+                        {config.iconType === "custom" && config.customIcon && <img style={{ width: "93%" }} src={URL.createObjectURL(new Blob([config.customIcon], { type: 'image/svg+xml' }))} />}
 
                         {/*<svg style={{*/}
                         {/*    width: `${isConfig ? "16vmin" : "16vmax"}`,*/}
@@ -748,8 +768,8 @@ function MileStone({config, isConfig}: {
                         {config.iconType === "preset" && <>
                             <div style={{
                                 position: "absolute",
-                                left:0,
-                                top:0,
+                                left: 0,
+                                top: 0,
                                 borderRadius: "25%",
                                 width: `100%`,
                                 height: `100%`,
@@ -764,7 +784,7 @@ function MileStone({config, isConfig}: {
                         </>}
                     </div>
                     <Tooltip trigger={'hover'} position={'bottom'}
-                             content={diffDay > 0 ? t(`距离目标日期{{count}}天`, {count: diffDay}) : t(`已超过设定日期`)}>
+                        content={diffDay > 0 ? t(`距离目标日期{{count}}天`, { count: diffDay }) : t(`已超过设定日期`)}>
                         <div style={{
                             marginLeft: `${isConfig ? "2vmin" : "2vmax"}`,
                             display: "flex",
