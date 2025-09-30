@@ -389,6 +389,7 @@ export default function App() {
 
     React.useEffect(() => {
         const offConfigChange = dashboard.onConfigChange((r) => {
+            console.log('====onConfigChange', r)
             // 监听配置变化，协同修改配置
             updateConfig(r.data);
         });
@@ -416,6 +417,15 @@ export default function App() {
             dataConditions: dataConditions,
         } as any)
     }
+    const [update, setUpdate] = useState(0);
+    useEffect(() => {
+        if (dashboard.state === DashboardState.FullScreen || dashboard.state === DashboardState.View) {
+            setInterval(() => {
+                setUpdate(Math.random());
+                dashboard.setRendered();
+            }, 1000 * 30)
+        }
+    }, [])
 
     return (
         <main className={classnames({
@@ -426,7 +436,7 @@ export default function App() {
             <ConfigProvider locale={locale}>
 
                 <div className='content'>
-                    <MileStone config={config} isConfig={isConfig} />
+                    <MileStone key={update} config={config} isConfig={isConfig} />
                 </div>
                 {
                     isConfig && (
@@ -676,6 +686,9 @@ function MileStone({ config, isConfig }: {
         }
 
         async function getTime() {
+            console.log("====getTime", {
+                config: JSON.parse(JSON.stringify(config))
+            })
             let data: IData = [];
             let tableId = config.dateInfo.tableId
             let fieldId = config.dateInfo.fieldId
@@ -691,11 +704,11 @@ function MileStone({ config, isConfig }: {
                         }
                     ],
                 });
-                console.log("预览数据", data);
+                console.log("====getTime - 预览数据", data);
 
             } else {
                 data = await dashboard.getData()
-                console.log('getData', data)
+                console.log('====getTime - 非预览模式getData', data)
             }
             const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(data)
 
@@ -706,12 +719,13 @@ function MileStone({ config, isConfig }: {
             } else {
                 time = maxTimeFormat
             }
-            console.log("预览数据的时间", time)
+            console.log("====getTime 重新设置数据的时间", time)
             setTime(dayjs(time).format(format))
             await dashboard.setRendered()
         }
 
-        function loadTimeInfo() {
+        function loadTimeInfo(type: string) {
+            console.log("===loadTimeInfo", type)
             if (config.dateType === "ref") {
                 getTime()
             } else {
@@ -719,17 +733,25 @@ function MileStone({ config, isConfig }: {
             }
         }
 
-        loadTimeInfo()
+        loadTimeInfo('====useEffect')
 
+
+        // @ts-ignore;
+        window._loadTimeInfo = loadTimeInfo;
+        // @ts-ignore;
+        window._dashboard = dashboard;
         let off = dashboard.onDataChange((r) => {
-            console.log("data change", r)
-            if (config.dateType === "ref") {
-                let info = r.data
-                const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(info)
-                const time = config.dateInfo.dateType === 'earliest' ? minTimeFormat : maxTimeFormat
-                console.log("data change,时间", time)
-                setTime(dayjs(time).format(format))
-            }
+            console.log("====onDataChange触发", r);// TODO 由saveConfig触发的此回调。这个时机触发的n（n可能有几十秒），onDataChange拿到的数据，以及调用getData拿到的数据还是旧的
+            setTimeout(() => {
+                loadTimeInfo('===onDataChange 延迟1s触发');
+            }, 1000);
+            // if (config.dateType === "ref") {
+            //     let info = r.data
+            //     const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(info)
+            //     const time = config.dateInfo.dateType === 'earliest' ? minTimeFormat : maxTimeFormat
+            //     console.log("data change,时间", time)
+            //     setTime(dayjs(time).format(format))
+            // }
         })
         return () => {
             off()
