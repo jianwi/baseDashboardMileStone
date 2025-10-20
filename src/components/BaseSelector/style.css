@@ -1,0 +1,12 @@
+.base-label {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.info-icon {
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}

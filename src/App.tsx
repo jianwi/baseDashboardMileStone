@@ -24,6 +24,7 @@ import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
 import SettingIcon from "./SettingIcon";
 import { IconsMap } from "./iconMap";
+import BaseSelector from './components/BaseSelector';
 
 interface IMileStoneConfig {
     title: string;
@@ -35,6 +36,7 @@ interface IMileStoneConfig {
         tableId: string;
         fieldId: string;
         dateType: 'earliest' | 'latest';
+        baseToken?: string;
     };
     target: number;
     format: string;
@@ -107,8 +109,23 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
         }
     }
 
+    const getBaseToken = async () => {
+        console.log('=======dashboard', dashboard.getConfig)
+        const dashboardConfig = await dashboard.getConfig();
+        console.log('=======dashboardConfig', dashboardConfig)
+        const initialBaseToken = dashboardConfig?.dataConditions?.[0]?.baseToken || "";
+        setConfig({
+            ...config,
+            dateInfo: {
+                ...config.dateInfo,
+                baseToken: initialBaseToken,
+            }
+        });
+    }
+
     React.useEffect(() => {
         getTables();
+        getBaseToken();
     }, [])
 
     async function getDateFields(table_id: string) {
@@ -128,6 +145,18 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
     }
 
     return (<div>
+        <div className={'form-item'}>
+            <BaseSelector 
+                baseToken={config.dateInfo.baseToken!} 
+                onChange={(v) => setConfig({
+                    ...config,
+                    dateInfo: {
+                        ...config.dateInfo,
+                        baseToken: v
+                    }
+                })} 
+            />
+        </div>
         <div className={'form-item'}>
             <div className={'label'} style={{ marginTop: 8 }}>{t("数据源")}</div>
             <Select

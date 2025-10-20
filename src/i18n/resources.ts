@@ -22,7 +22,12 @@ const config = [
     ['拖拽svg到这里上传，或者',"拖拽svg到这里上传，或者","Drag and drop svg here to upload, or","ここにsvgをドラッグしてアップロードするか、または"],
     ['自定义图标',"自定义图标","Custom Icon","カスタムアイコン"],
     ['预设图标',"预设图标","Preset Icon","プリセットアイコン"],
-    ['图标',"图标","Icon","アイコン"]
+    ['图标',"图标","Icon","アイコン"],
+    ['多维表格',"多维表格","Base","Base"],
+    ['仅支持选择当前空间内有可编辑及以上权限的多维表格。若多维表格开启了高级权限，则需拥有可管理及以上权限',"仅支持选择当前空间内有可编辑及以上权限的多维表格。若多维表格开启了高级权限，则需拥有可管理及以上权限","Only bases with edit or above permissions in the workspace can be selected. For bases with advanced permissions, manage or ownership permissions are required.","現在のワークスペース内で「編集可能」以上の権限を持つ Base のみ選択できます。Base で高度な権限が有効になっている場合は、「管理可能」以上の権限が必要です。"],
+    ['请选择多维表格',"请选择多维表格","Select base","Base を選択"],
+    ['暂无匹配结果',"暂无匹配结果","No matching results found","一致する結果が見つかりません。"],
+    ['跳转到多维表格',"跳转到多维表格","Redirect to Base","Base へリダイレクト"],
 ]
 
 
