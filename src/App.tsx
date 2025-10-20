@@ -8,7 +8,8 @@ import {
     IData,
     IDataCondition,
     ORDER,
-    Rollup
+    Rollup,
+    workspace
 } from "@lark-base-open/js-sdk";
 import { Button, ConfigProvider, DatePicker, Divider, Icon, Input, Select, Spin, Tooltip } from '@douyinfe/semi-ui';
 import dayjs from 'dayjs';
@@ -95,6 +96,7 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
                 setConfig({
                     ...config,
                     dateInfo: {
+                        ...config.dateInfo,
                         tableId: targetTableId,
                         fieldId: targetFieldId,
                         dateType: 'earliest'
@@ -110,10 +112,13 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
     }
 
     const getBaseToken = async () => {
-        console.log('=======dashboard', dashboard.getConfig)
-        const dashboardConfig = await dashboard.getConfig();
-        console.log('=======dashboardConfig', dashboardConfig)
-        const initialBaseToken = dashboardConfig?.dataConditions?.[0]?.baseToken || "";
+        const baseList = await workspace.getBaseList({
+            query: "",
+            page: {
+                cursor: "",
+            },
+        });
+        const initialBaseToken = baseList?.base_list?.[0]?.token || "";
         setConfig({
             ...config,
             dateInfo: {
@@ -124,8 +129,8 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
     }
 
     React.useEffect(() => {
-        getTables();
         getBaseToken();
+        getTables();
     }, [])
 
     async function getDateFields(table_id: string) {
