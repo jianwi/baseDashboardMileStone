@@ -2,12 +2,11 @@ import React, {
   memo,
   useState,
   useCallback,
-  useRef,
   useEffect,
   useMemo,
 } from "react";
 import { map, debounce } from "lodash-es";
-import { IconButton, Select, Spin, Tooltip } from "@douyinfe/semi-ui";
+import { Select, Spin, Tooltip } from "@douyinfe/semi-ui";
 import { t } from "i18next";
 import {
   IBaseInfo,
@@ -34,7 +33,7 @@ function DataSourceOption(props: {
 
   const content = (
     <>
-      <i>
+      <span className="base-selector-option-icon">
         <svg
           width="1em"
           height="1em"
@@ -48,54 +47,44 @@ function DataSourceOption(props: {
             fill="currentColor"
           ></path>
         </svg>
-      </i>
+      </span>
       <span>{optName}</span>
     </>
   );
 
   return (
-    <div>
-      <Tooltip
-        title={optName}
-        checkOverflow={true}
-      >
-        <div>{content}</div>
+    <div className="base-selector-option">
+      <Tooltip content={optName} checkOverflow={true}>
+        <div className="base-selector-option-content">{content}</div>
       </Tooltip>
       {isLabel && (
-        <span>
-          <Tooltip
-            title={t("跳转到多维表格")}
-          >
-            <IconButton
-              icon={
-                <svg
-                  width="1em"
-                  height="1em"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  data-icon="WindowNewOutlined"
-                >
-                  <path
-                    d="M22 3a1 1 0 0 0-1-1h-7a1 1 0 0 0 0 2h4.586l-6.293 6.293a1 1 0 0 0 1.414 1.414L20 5.414V10a1 1 0 1 0 2 0V3Z"
-                    fill="currentColor"
-                  ></path>
-                  <path
-                    d="M4 5h6v2H4v13h16v-5.5h2V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
-                    fill="currentColor"
-                  ></path>
-                </svg>
-              }
-              onClick={handleClick}
-            />
-          </Tooltip>
-        </span>
+        <Tooltip content={t("跳转到多维表格")}>
+          <span className="base-selector-option-link" onClick={handleClick}>
+            <svg
+              width="1em"
+              height="1em"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              data-icon="WindowNewOutlined"
+            >
+              <path
+                d="M22 3a1 1 0 0 0-1-1h-7a1 1 0 0 0 0 2h4.586l-6.293 6.293a1 1 0 0 0 1.414 1.414L20 5.414V10a1 1 0 1 0 2 0V3Z"
+                fill="currentColor"
+              ></path>
+              <path
+                d="M4 5h6v2H4v13h16v-5.5h2V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </span>
+        </Tooltip>
       )}
     </div>
   );
 }
 
-const BaseSelector = (props: { 
+const BaseSelector = (props: {
   baseToken: string;
   onChange: (v: string) => void;
 }) => {
@@ -106,8 +95,6 @@ const BaseSelector = (props: {
   const [hasMore, setHasMore] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(false);
 
   useEffect(() => {
@@ -115,22 +102,21 @@ const BaseSelector = (props: {
   }, [baseToken]);
 
   const search = useCallback(async (value: string) => {
-    setLoading(true);
-    try {
-      const params: IGetBaseListParams = {
-        query: value,
-        page: {
-          cursor: "",
-        },
-      };
-      const res = await workspace.getBaseList(params);
-      setCurBases([...(res?.base_list || [])]);
-      setHasMore(res?.page?.hasMore ?? false);
-      setCurrentCursor(res?.page?.cursor || "");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const params: IGetBaseListParams = {
+      query: value,
+      page: {
+        cursor: "",
+      },
+    };
+    const res = await workspace.getBaseList(params);
+    setCurBases([...(res?.base_list || [])]);
+    setHasMore(res?.page?.hasMore ?? false);
+    setCurrentCursor(res?.page?.cursor || "");
+    cacheCurBases = [
+      ...(res?.base_list || []),
+      ...cacheCurBases.filter((item) => item.token === currentBaseToken),
+    ];
+  }, [cacheCurBases]);
 
   // 初始化
   useEffect(() => {
@@ -197,7 +183,7 @@ const BaseSelector = (props: {
   const handleScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
       const target = e.nativeEvent.target as unknown as HTMLElement;
-      if (!dropdownRef.current || isLoadingMore || !hasMore) {
+      if (isLoadingMore || !hasMore) {
         return;
       }
       const { scrollTop, scrollHeight, clientHeight } = target;
@@ -206,7 +192,7 @@ const BaseSelector = (props: {
         handleLoadMore();
       }
     },
-    [dropdownRef, isLoadingMore, hasMore, handleLoadMore]
+    [isLoadingMore, hasMore, handleLoadMore]
   );
 
   const hasResult = curBases.length > 0;
@@ -263,14 +249,26 @@ const BaseSelector = (props: {
           width: "100%",
         }}
         showClear={false}
-        loading={loading || isInitialLoading}
+        loading={isInitialLoading}
         disabled={isInitialLoading}
         value={showBaseName ? currentBaseToken : ""}
         onListScroll={handleScroll}
         onChange={(v) => handleBaseChange(v as string)}
         onSearch={handleSearch}
         onDropdownVisibleChange={onVisibleChange}
-        // getPopupContainer: (node: HTMLElement) => node.parentElement!,
+        renderSelectedItem={() => {
+          const currentBase = cacheCurBases.find((base) => base.token === currentBaseToken);
+          if(!currentBase) {
+            return <Spin />;
+          }
+          return (
+            <DataSourceOption
+              url={currentBase?.url ?? ""}
+              optName={currentBase?.name ?? ""}
+              isLabel={currentBase?.token === currentBaseToken}
+            />
+          );
+        }}
       >
         {curBases &&
           map(curBases, (base) => (
@@ -282,23 +280,17 @@ const BaseSelector = (props: {
               <DataSourceOption
                 url={base?.url ?? ""}
                 optName={base?.name ?? ""}
+                isLabel={base?.token === currentBaseToken}
               />
             </Option>
           ))}
         {!hasResult && (
-          <Option
-            value="no-result"
-            disabled
-            style={{ cursor: "auto" }}
-          >
+          <Option value="no-result" disabled style={{ cursor: "auto" }}>
             {t("暂无匹配结果")}
           </Option>
         )}
         {isLoadingMore && (
-          <Option
-            value="loading-more"
-            style={{ textAlign: "center" }}
-          >
+          <Option value="loading-more" style={{ textAlign: "center" }}>
             <Spin />
           </Option>
         )}
