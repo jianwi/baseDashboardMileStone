@@ -73,10 +73,10 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
     const [tables, setTables] = React.useState<any[]>([]);
     const [fields, setFields] = React.useState<any[]>([]);
     const { t } = useTranslation()
-    const isMultipleBase = useRef(false);
+    const [isMultipleBase, setIsMultipleBase] = useState<boolean | undefined>(undefined);
 
     async function getTables() {
-        if(isMultipleBase.current && !config?.dateInfo?.baseToken) {
+        if(isMultipleBase && !config?.dateInfo?.baseToken) {
             return
         }
         setConfig({
@@ -88,7 +88,7 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
                 dateType: 'earliest'
             }
         })
-        const realBitable = isMultipleBase.current
+        const realBitable = isMultipleBase
             ? await workspace.getBitable(config.dateInfo.baseToken!)
             : bitable;
         let tables = await realBitable?.base?.getTableMetaList() || [];
@@ -103,6 +103,7 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
                 let allFields = await table?.getFieldMetaList() || [];
                 let dateFields = allFields.filter(item => item.type === 5 || item.type === 1001 || item.type === 1002)
                 if (dateFields && dateFields.length > 0) {
+                    console.log('####table_info', table_info)
                     fields = dateFields
                     targetTableId = table_info.id
                     targetFieldId = dateFields[0].id
@@ -111,6 +112,7 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
             }
             if (fields.length > 0) {
                 setFields(fields)
+                console.log('###table_id222', targetTableId)
                 setConfig({
                     ...config,
                     dateInfo: {
@@ -150,33 +152,40 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
     }
 
     React.useEffect(() => {
-        bridge.getEnv().then((env) => {
-            isMultipleBase.current = env.needChangeBase ?? true;
-            if(isMultipleBase.current) {
-                getBaseToken();
-            }
-        });
+         (async () => {
+            const env = await bridge.getEnv();
+            setIsMultipleBase(env.needChangeBase ?? false);
+                if(env.needChangeBase) {
+                    getBaseToken();
+                }
+        })();
     }, [])
 
+    console.log('####config', config)
+
     React.useEffect(() => {
-        if(isMultipleBase.current && !config?.dateInfo?.baseToken) {
+        if(isMultipleBase === undefined || (isMultipleBase && !config?.dateInfo?.baseToken)) {
             return
         }
         getTables();
-    }, [config?.dateInfo?.baseToken])
+    }, [config?.dateInfo?.baseToken, isMultipleBase])
 
     async function getDateFields(table_id: string) {
         console.log("获取", table_id)
-        if(isMultipleBase.current && !config?.dateInfo?.baseToken) {
+        if(isMultipleBase && !config?.dateInfo?.baseToken) {
             return
         }
-          const realBitable = isMultipleBase.current
+        const realBitable = isMultipleBase
             ? await workspace.getBitable(config.dateInfo.baseToken!)
             : bitable;
+        console.log('###realBitable222', realBitable)
         let table = await realBitable?.base?.getTableById(table_id);
+        console.log('###table222', table)
         let allFields = await table?.getFieldMetaList() || [];
+        console.log('###allFields222', allFields)
         let fields = allFields.filter(item => item.type === 5 || item.type === 1001 || item.type === 1002)
         setFields(fields)
+        console.log('###table_id111', table_id)
         setConfig({
             ...config,
             dateInfo: {
@@ -188,7 +197,7 @@ export function SelectRefDate({ config, setConfig }: { config: IMileStoneConfig,
     }
 
     return (<div>
-        {isMultipleBase.current && 
+        {isMultipleBase && 
             <div className={'form-item'}>
                 <BaseSelector 
                     baseToken={config.dateInfo.baseToken!} 
@@ -362,15 +371,26 @@ export default function App() {
         format: 'YYYY-MM-DD',
     })
     const [theme, setTheme] = useState('LIGHT')
+    const [isMultipleBase, setIsMultipleBase] = useState<boolean | undefined>(undefined);
     const dashboardRef = useRef<IDashboard>(dashboard);
 
     useEffect(() => {
+         (async () => {
+            const env = await bridge.getEnv();
+            setIsMultipleBase(env.needChangeBase ?? false);
+        })();
+    }, [])
+
+    useEffect(() => {
         (async () => {
+            if(!isMultipleBase) {
+                return
+            }
             const workspaceBitable = await workspace.getBitable(config.dateInfo.baseToken!);
             const workspaceDashboard = workspaceBitable?.dashboard || dashboard;
             dashboardRef.current = workspaceDashboard;
         })();
-    }, [config.dateInfo.baseToken]);
+    }, [config.dateInfo.baseToken, isMultipleBase]);
 
     const isCreate = dashboardRef.current.state === DashboardState.Create
     /** 是否配置模式下 */
@@ -494,6 +514,7 @@ export default function App() {
                         fieldId: config.dateInfo.fieldId,
                     }
                 ],
+                baseToken: config.dateInfo.baseToken,
             }]
         }
         dashboardRef.current.saveConfig({
@@ -834,23 +855,22 @@ function MileStone({ config, isConfig }: {
         window._loadTimeInfo = loadTimeInfo;
         // @ts-ignore;
         window._dashboard = dashboardRef.current;
-        // console.log('####dashboardRef.current.onDataChange', dashboardRef.current.onDataChange)
-        // let off = dashboardRef.current.onDataChange((r) => {
-        //     console.log("====onDataChange触发", r);// TODO 由saveConfig触发的此回调。这个时机触发的n（n可能有几十秒），onDataChange拿到的数据，以及调用getData拿到的数据还是旧的
-        //     setTimeout(() => {
-        //         loadTimeInfo('===onDataChange 延迟1s触发');
-        //     }, 1000);
-        //     // if (config.dateType === "ref") {
-        //     //     let info = r.data
-        //     //     const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(info)
-        //     //     const time = config.dateInfo.dateType === 'earliest' ? minTimeFormat : maxTimeFormat
-        //     //     console.log("data change,时间", time)
-        //     //     setTime(dayjs(time).format(format))
-        //     // }
-        // })
-        // return () => {
-        //     off()
-        // }
+        let off = dashboardRef.current.onDataChange((r) => {
+            console.log("====onDataChange触发", r);// TODO 由saveConfig触发的此回调。这个时机触发的n（n可能有几十秒），onDataChange拿到的数据，以及调用getData拿到的数据还是旧的
+            setTimeout(() => {
+                loadTimeInfo('===onDataChange 延迟1s触发');
+            }, 1000);
+            // if (config.dateType === "ref") {
+            //     let info = r.data
+            //     const { maxTimeFormat, minTimeFormat, maxDate, minDate } = getMaxMinTimeFromData(info)
+            //     const time = config.dateInfo.dateType === 'earliest' ? minTimeFormat : maxTimeFormat
+            //     console.log("data change,时间", time)
+            //     setTime(dayjs(time).format(format))
+            // }
+        })
+        return () => {
+            off()
+        }
     }, [config, isConfig])
 
 

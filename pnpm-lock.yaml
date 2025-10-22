@@ -4,7 +4,7 @@ specifiers:
   '@ant-design/icons': ^5.3.7
   '@douyinfe/semi-foundation': ^2.58.1
   '@douyinfe/semi-ui': ^2.58.1
-  '@lark-base-open/js-sdk': https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.6.tgz
+  '@lark-base-open/js-sdk': https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.13.tgz
   '@semi-bot/semi-theme-feishu-dashboard': ^1.0.4
   '@types/lodash-es': ^4.17.12
   '@types/react': ^18.0.15
@@ -29,7 +29,7 @@ dependencies:
   '@ant-design/icons': 5.6.1_react-dom@18.3.1+react@18.3.1
   '@douyinfe/semi-foundation': 2.87.1
   '@douyinfe/semi-ui': 2.87.1_react-dom@18.3.1+react@18.3.1
-  '@lark-base-open/js-sdk': '@lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.6.tgz'
+  '@lark-base-open/js-sdk': '@lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.13.tgz'
   '@semi-bot/semi-theme-feishu-dashboard': 1.0.4
   antd: 5.27.5_react-dom@18.3.1+react@18.3.1
   classnames: 2.5.1
@@ -3522,8 +3522,8 @@ packages:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
 
-  '@lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.6.tgz':
-    resolution: {tarball: https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.6.tgz}
+  '@lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.13.tgz':
+    resolution: {tarball: https://lf3-static.bytednsdoc.com/obj/eden-cn/jjjpceh7nulojvhj/@lark-base-open-js-sdk-0.5.1-alpha.13.tgz}
     name: '@lark-base-open/js-sdk'
-    version: 0.5.1-alpha.6
+    version: 0.5.1-alpha.13
     dev: false
