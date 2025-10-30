@@ -78,6 +78,8 @@ export function SelectRefDate({
 }) {
   const [tables, setTables] = React.useState<any[]>([]);
   const [fields, setFields] = React.useState<any[]>([]);
+  const [tableLoading, setTableLoading] = React.useState<boolean>(false);
+  const [fieldLoading, setFieldLoading] = React.useState<boolean>(false);
   const { t } = useTranslation()
   const hasInit = useRef(false);
 
@@ -85,6 +87,7 @@ export function SelectRefDate({
     if (isMultipleBase && !config?.dateInfo?.baseToken) {
       return;
     }
+    setTableLoading(true);
     const realBitable = isMultipleBase
       ? await workspace.getBitable(config.dateInfo.baseToken!)
       : bitable;
@@ -131,6 +134,7 @@ export function SelectRefDate({
     }
 
     hasInit.current = true;
+    setTableLoading(false);
   }
 
   const getBaseToken = async () => {
@@ -187,6 +191,7 @@ export function SelectRefDate({
     if (isMultipleBase && !config?.dateInfo?.baseToken) {
       return;
     }
+    setFieldLoading(true);
     const realBitable = isMultipleBase
       ? await workspace.getBitable(config.dateInfo.baseToken!)
       : bitable;
@@ -203,6 +208,7 @@ export function SelectRefDate({
         tableId: table_id,
       },
     });
+    setFieldLoading(false);
     return fields;
   }
 
@@ -280,7 +286,9 @@ export function SelectRefDate({
                         </div>,
                         value: item.id,
                     }
-                })} />
+                })} 
+                renderSelectedItem={tableLoading ? () => <Spin /> : undefined}
+            />
         </div>
         <div className={'form-item'}>
             <div className={'label'}>
@@ -320,6 +328,7 @@ export function SelectRefDate({
                         value: item.id,
                     }
                 })}
+                renderSelectedItem={tableLoading ? () => <Spin /> : undefined}
             >
 
             </Select>
@@ -981,4 +990,3 @@ function MileStone({ config, isConfig }: {
     );
 
 }
-
